@@ -1,0 +1,4 @@
+.buildozer/
+.metadata/
+__pycache__/
+bin/
