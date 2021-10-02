@@ -16,13 +16,10 @@ for i in range(0, numdevices):
 
 from pyVBAN import *
 import threading
+import audioBackend
 import datetime
 from datetime import datetime
 import socket
-from audioBackend import *
-
-#create AudioBackend
-audioBackend = PcAudioBackend()
 
 #VBAN Socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # UDP
@@ -30,16 +27,16 @@ sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 sock.bind(("0.0.0.0", 6981))
 
 #VBan Send Stuff
-vbanSend = VBAN_Send(streamName="Stream1", socket=sock, sampRate=44100, verbose=False)
+vbanSend = VBAN_Send(streamName="Stream1", socket=sock, sampRate=44100,inDeviceIndex=5,verbose=False)
 
-#Audio Backend stuff Note: this approach is not great, should be reworked
+
+#Audio Backend stuff
 audioBackend.setVBANSend(vbanSend)
-
 audioBackend.addInputDevice(5, 2, 44100)
 audioBackend.addInputDevice(7, 2, 44100)
 
 # VBAN Receive Stuff
-vbanRecv = VBAN_Recv(streamName="Stream1", socket=sock, audioBackend=audioBackend, verbose=False)
+vbanRecv = VBAN_Recv(streamName="Stream1", socket=sock, verbose=False)
 
 connectedClients = dict();
 def recvFunc():

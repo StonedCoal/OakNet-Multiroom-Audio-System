@@ -1,9 +1,10 @@
 import struct
+import audioBackend
 
 
 class VBAN_Recv(object):
 	"""docstring for VBAN_Recv"""
-	def __init__(self, streamName, socket, audioBackend, verbose=False):
+	def __init__(self, streamName, socket, verbose=False):
 		super(VBAN_Recv, self).__init__()
 		self.streamName = streamName
 		self.const_VBAN_SRList = [6000, 12000, 24000, 48000, 96000, 192000, 384000, 8000, 16000, 32000, 64000, 128000, 256000, 512000,11025, 22050, 44100, 88200, 176400, 352800, 705600] 
@@ -24,14 +25,13 @@ class VBAN_Recv(object):
 		self.verbose = verbose
 		self.rawData = None
 		self.subprotocol = 0
-		self.audioBackend = audioBackend
 		print("pyVBAN-Recv Started")
 		print("Hint: Remeber that pyVBAN only support's PCM 16bits")
 
 	def _correctPyAudioStream(self):
 		self.channels = self.stream_chanNum 
 		self.sampRate = self.stream_sampRate
-		self.audioBackend.setVBanOutputDevice(None, self.channels, self.sampRate)
+		audioBackend.setVBanOutputDevice(None, self.channels, self.sampRate)
 		#self.stream.close()
 		#self.stream = self.p.open(format = self.p.get_format_from_width(2), channels = self.channels, rate = self.sampRate, output = True, output_device_index=self.outDeviceIndex)
 
@@ -66,7 +66,7 @@ class VBAN_Recv(object):
 			#	return
 			if self.channels != self.stream_chanNum or self.sampRate != self.stream_sampRate:
 				self._correctPyAudioStream()
-			self.audioBackend.buffer.append(self.rawPcm)
+			audioBackend.buffer.append(self.rawPcm)
 		elif self.stream_magicString == "VBAN" and self.subprotocol == 2:
 			return self.rawPcm.decode("UTF-8"), addr
 
@@ -75,7 +75,7 @@ class VBAN_Recv(object):
 
 class VBAN_Send(object):
 	"""docstring for VBAN_Send"""
-	def __init__(self, streamName, socket, sampRate,verbose=False ):
+	def __init__(self, streamName, socket, sampRate, inDeviceIndex ,verbose=False ):
 		super(VBAN_Send, self).__init__()
 		self.streamName = streamName
 		self.sock = socket
@@ -86,6 +86,7 @@ class VBAN_Send(object):
 			print("SampRate not valid/compatible")
 			return
 		self.samprate = sampRate
+		self.inDeviceIndex = inDeviceIndex
 		self.chunkSize = 255
 		#self.stream = self.p.open(format=self.p.get_format_from_width(2), channels=self.channels,rate=self.samprate, input=True,input_device_index = self.inDeviceIndex, frames_per_buffer=self.chunkSize)
 

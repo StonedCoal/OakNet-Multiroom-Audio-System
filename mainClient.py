@@ -1,10 +1,7 @@
 from pyVBAN import *
 import threading
-from audioBackend import *
+import audioBackend
 import socket
-
-#create AudioBackend
-audioBackend = PcAudioBackend()
 
 #VBAN Socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # UDP
@@ -12,7 +9,7 @@ sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 sock.bind(("0.0.0.0", 6980))
 
 # VBAN Receive Stuff
-vbanRecv = VBAN_Recv(streamName="Stream1", socket=sock, audioBackend=audioBackend, verbose=False)
+vbanRecv = VBAN_Recv(streamName="Stream1", socket=sock, verbose=False)
 
 def recvFunc():
     while True:
