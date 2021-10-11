@@ -32,7 +32,7 @@ import os
 counter = 0;
 while True:
     time.sleep(0.1)
-    print (len(audioBackend.buffer))
+    #print (len(audioBackend.buffer))
     if(counter % 10 == 0):
         vbanText.send("GIMMESTREAM", "192.168.2.42", 6980)
     counter+=1
