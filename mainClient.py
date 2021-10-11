@@ -12,7 +12,7 @@ sock.bind(("0.0.0.0", 6981))
 vbanRecv = VBAN_Recv(streamName="Stream1", socket=sock, verbose=False)
 
 #Audio Backend stuff
-audioBackend.setVBanOutputDevice(21, 2, 44100)
+audioBackend.setVBanOutputDevice(7, 2, 44100)
 
 def recvFunc():
     while True:

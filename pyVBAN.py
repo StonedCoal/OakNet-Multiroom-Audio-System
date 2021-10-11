@@ -67,10 +67,15 @@ class VBAN_Recv(object):
 			#	return
 			if self.channels != self.stream_chanNum or self.sampRate != self.stream_sampRate:
 				self._correctPyAudioStream()
+			#Out of order Frame
+			if(self.stream_frameCounter<=self.stream_lastframeCounter):
+				return(None, None)			
+			# Missing Frames
 			missingframes = self.stream_frameCounter - 1 - self.stream_lastframeCounter
 			if(abs(missingframes)<5):
 				while (missingframes>0):
 					audioBackend.buffer.append(b'\x00'*1024)
+					missingframes=missingframes-1
 			self.stream_lastframeCounter = self.stream_frameCounter
 			audioBackend.buffer.append(self.rawPcm)
 		elif self.stream_magicString == "VBAN" and self.subprotocol == 2:

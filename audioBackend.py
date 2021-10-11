@@ -6,7 +6,7 @@ p = pyaudio.PyAudio()
 peaks = dict()
 buffer = list()
 isBuffering = False
-bufferGoal = 5
+bufferGoal = 40
 bufferRange = 5
 
 
@@ -31,9 +31,9 @@ def outCallback(inData, frame_count, time_info, status):
     global isBuffering, bufferRange
     if(len(buffer) < bufferGoal - bufferRange):
         isBuffering = True
-    if(isBuffering and len(buffer) >= bufferGoal):
+    if(isBuffering and len(buffer) >= bufferGoal-bufferRange):
         isBuffering = False
-    while(len(buffer) > bufferGoal + bufferRange):
+    if(len(buffer) > bufferGoal + bufferRange):
         buffer.pop(0)
     if(isBuffering):
         return b'\x00'*1024, pyaudio.paContinue
