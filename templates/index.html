@@ -78,7 +78,7 @@
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
                 <div class="tab-content d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                     <div class="tab-pane fade show active" id="inputs" role="tabpanel" style="width: 100%;">
-                        <h1 class="h2">Input Selection</h1>
+                        <h1 class="h2 position-sticky">Input Selection</h1>
 
                         <hr>
                         {% for input in inputs %}
@@ -87,7 +87,7 @@
                                     <div class="row">
                                         <div class="col">
                                             <h6>Audio Device ID:{{ input }} <span id="badge-{{ input }}" class="badge bg-primary">Active</span> </h6>
-                                            <a> Some Description!</a>
+                                            <a>{{ config["activeInputDevices"][input|string] }} </a>
                                         </div>
                                         <div class="col position-relative me-3">
                                             <button class="btn btn-primary position-absolute end-0" onClick="changeInput({{ input }});"> Switch Input </button>
@@ -125,14 +125,116 @@
                     
                     <div class="tab-pane fade" id="radio" role="tabpanel" style="width: 100%;">
                         <h1 class="h2">Radio</h1>
+                        <hr>
+                        <p>Not Implemented yet!</p>
                     </div>
 
                     <div class="tab-pane fade" id="player" role="tabpanel" style="width: 100%;">
                         <h1 class="h2">Music Player</h1>
+                        <hr>
+                        <p>Not Implemented yet!</p>
                     </div>
 
                     <div class="tab-pane fade" id="settings" role="tabpanel" style="width: 100%;">
-                        <h1 class="h2">Settings</h1>
+                        <div class="row mb-0">
+                            <div class="col">
+                                <h1 class="h2 ">Settings</h1>
+                            </div>
+                            <div class="col position-relative mb-0">
+                                <div class="position-absolute top-0 end-0 me-3 mb-0">
+                                    <button onClick="saveSettings()" class="btn btn-primary">Save Settings</button>
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                        <h5>VBAN Settings:</h5>
+                        <label for="vbanPort" class="form-label">VBAN Port</label>
+                        <input type="text" id="vbanPort" class="form-control" aria-describedby="vbanPortHelpBlock" value="{{ config["VBAN"]["port"] }}">
+                        <label for="outputStreamName" class="form-label">VBAN Out Stream Name</label>
+                        <input type="text" id="outputStreamName" class="form-control" aria-describedby="outputStreamNameHelpBlock" value="{{ config["VBAN"]["outStreamName"] }}">
+                        <label for="inputStreamName" class="form-label">VBAN In Stream Name</label>
+                        <input type="text" id="inputStreamName" class="form-control" aria-describedby="inputStreamNameHelpBlock" value="{{ config["VBAN"]["inStreamName"] }}">
+                        <label for="inputStreamDevice" class="form-label">VBAN In Output Device</label>
+                        <select id="inputStreamDevice" class="form-select" aria-label="inputDeviceSelection">
+                            {%for id, name in availableOutputs.items() %}
+                            <option value="{{ id }}" {% if id|string == config["VBAN"]["selectedOutput"] %} selected {% endif %}>ID: {{ id }} - {{ name }}</option>
+                            {% endfor %}
+                        </select>
+                        <hr>
+                        <h5>Available Input Devices:</h5>
+                        <ul class="list-group mt-2">
+                        {% for id, desc in availableInputs.items() %}
+                            <li class="list-group-item" >
+                                <div class="row">
+                                    <div class="col">
+                                        <p><strong>Input Device ID: {{ id }} </strong>{{ desc }}</p>
+                                    </div>
+                                    <div class="col position-relative me-3">
+                                        <div class="input-group">
+                                            <input id="input-device-description-{{ id }}" type="text" class="form-control" placeholder="Description" aria-label="Recipient's username" value="{% if id|string in config["activeInputDevices"] %}{{ config["activeInputDevices"][id|string] }}{% endif %}" aria-describedby="basic-addon2">
+                                            <span class="input-group-text">Selectable</span>
+                                            <div class="input-group-text">
+                                                <input name="deviceCheckbox" class="form-check-input mt-0" type="checkbox" value="{{ id }}" {% if id|string in config["activeInputDevices"] %} checked {% endif %} aria-label="Checkbox for following text input">
+                                            </div>
+                                        </div>                                        
+                                    </div>
+                                </div>
+                            </li>
+                        {% endfor %}
+                        </ul>
+                        {% if false %}
+                        <hr>
+                        <h5>Radio Settings:</h5>
+                        <label for="radioDevice" class="form-label">Radio Output Device</label>
+                        <select id="radioDevice" class="form-select" aria-label="inputDeviceSelection">
+                            <option selected>Open this select menu</option>
+                            <option value="1">One</option>
+                            <option value="2">Two</option>
+                            <option value="3">Three</option>
+                        </select>
+
+                        <hr>
+                        <h5>Music Player Settings:</h5>
+                        <label for="musicStoragePath" class="form-label">Storage Path</label>
+                        <input type="text" id="musicStoragePath" class="form-control" aria-describedby="musicStoragePathHelpBlock">
+                        <label for="musicDevice" class="form-label">Music Player Output Device</label>
+                        <select id="musicDevice" class="form-select" aria-label="inputDeviceSelection">
+                            <option selected>Open this select menu</option>
+                            <option value="1">One</option>
+                            <option value="2">Two</option>
+                            <option value="3">Three</option>
+                        </select>
+
+                        <hr>
+                        <h5>Spotify Connect Settings:</h5>
+                        <label for="spotifyDevice" class="form-label">Spotify Connect Output Device</label>
+                        <select id="spotifyDevice" class="form-select" aria-label="spotifyDeviceSelection">
+                            <option selected>Open this select menu</option>
+                            <option value="1">One</option>
+                            <option value="2">Two</option>
+                            <option value="3">Three</option>
+                        </select>
+
+                        <hr>
+                        <h5>Airplay Settings:</h5>
+                        <label for="airplayDevice" class="form-label">Airplay Output Device</label>
+                        <select id="airplayDevice" class="form-select" aria-label="airplayDeviceSelection">
+                            <option selected>Open this select menu</option>
+                            <option value="1">One</option>
+                            <option value="2">Two</option>
+                            <option value="3">Three</option>
+                        </select>
+
+                        <hr>
+                        <h5>Upnp Settings:</h5>
+                        <label for="upnpDevice" class="form-label">upnpDevice Output Device</label>
+                        <select id="upnpDevice" class="form-select" aria-label="upnpDeviceSelection">
+                            <option selected>Not Implemented</option>
+                            <option value="1">One</option>
+                            <option value="2">Two</option>
+                            <option value="3">Three</option>
+                        </select>
+                        {% endif %}
                     </div>
                 </div>
             </main>

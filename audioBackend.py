@@ -9,6 +9,7 @@ isBuffering = False
 bufferGoal = 15
 bufferRange = 5
 
+
 def setVBANSend(vbanSend_):
     global vbanSendObj
     vbanSendObj = vbanSend_

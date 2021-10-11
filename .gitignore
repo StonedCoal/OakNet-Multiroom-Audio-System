@@ -2,3 +2,4 @@
 .metadata/
 __pycache__/
 bin/
+data/

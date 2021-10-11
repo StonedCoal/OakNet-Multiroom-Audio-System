@@ -30,16 +30,46 @@
       poll(); // also run function on init
   })();
 
-function changeInput(inputId){
-  $.ajax({
-    url: 'switchinput/'+inputId,
-    dataType: 'none',
-    type: 'get',
-    success: function(data) { 
-      
-    },
-    error: function() { 
-      
-    }
-  });
-};
+  function changeInput(inputId){
+    $.ajax({
+      url: 'switchinput/'+inputId,
+      dataType: 'none',
+      type: 'post',
+      success: function(data) { 
+        
+      },
+      error: function() { 
+        
+      }
+    });
+  };
+
+  function saveSettings(){
+    var checkedBoxes = document.querySelectorAll('input[name=deviceCheckbox]:checked');
+    var result={
+      VBAN:{
+        port:$("#vbanPort").val(),
+        outStreamName:$("#outputStreamName").val(),
+        inStreamName:$("#inputStreamName").val(),
+        selectedOutput:$("#inputStreamDevice").val()
+      },
+      activeInputDevices:{}
+    };
+    checkedBoxes.forEach(box => {
+      result.activeInputDevices[box.value]=$("#input-device-description-"+box.value).val()
+    });
+    console.log(result)
+    $.ajax({
+      url: "savesettings",
+      contentType: "application/json; charset=utf-8",
+      type: 'post',
+      data: JSON.stringify(result),
+      success: function(data) { 
+      },
+      error: function() { 
+        
+      }
+    });
+    
+    setTimeout(function () { location.reload(true); }, 3000);
+  };

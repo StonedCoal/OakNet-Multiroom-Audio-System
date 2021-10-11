@@ -69,6 +69,7 @@ class VBAN_Recv(object):
 			audioBackend.buffer.append(self.rawPcm)
 		elif self.stream_magicString == "VBAN" and self.subprotocol == 2:
 			return self.rawPcm.decode("UTF-8"), addr
+		return (None, None)
 
 	def quit(self):
 		self.running = False
