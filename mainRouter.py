@@ -1,6 +1,4 @@
-from typing import Protocol
 import pyaudio
-from vlc import VideoFormatCb
 p = pyaudio.PyAudio()
 info = p.get_host_api_info_by_index(0)
 numdevices = info.get('deviceCount')
@@ -115,7 +113,7 @@ def mainFunc():
     global counter, connectedClients
     while True:
         time.sleep(0.1)
-        print(len(audioBackend.buffer))
+        #print(len(audioBackend.buffer))
         #result= "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
         #for id, val in audioBackend.peaks.items():
         #    bar = ":" * int(val/20)
@@ -124,6 +122,8 @@ def mainFunc():
         #print(connectedClients)
         if(counter % 20 == 0):
             for addr, timestamp in list(connectedClients.items()):
+                if(timestamp == -1):
+                    continue
                 if((datetime.now() - timestamp).total_seconds()>=4):
                     print("Client "+addr[0] +" disconnected")
                     connectedClients.pop(addr, None);
@@ -157,6 +157,21 @@ def info():
 @app.route("/switchinput/<int:input>", methods = ['POST'])
 def switchinput(input):
     audioBackend.activeInputDevice = input;
+    return ""
+
+@app.route("/addstaticstream/<string:address>", methods = ['POST'])
+def addstaticstream(address):
+    try:
+        
+        if(":" not in address):
+            address=address+":6980"
+        chunks = address.split(":")
+        addr= (chunks[0], int(chunks[1]))
+        vbanSend.addClient(addr)
+        connectedClients[addr] = -1
+        print("debug")
+    except:
+        pass
     return ""
 
 @app.route("/savesettings", methods = ['POST'])

@@ -6,7 +6,7 @@ p = pyaudio.PyAudio()
 peaks = dict()
 buffer = list()
 isBuffering = False
-bufferGoal = 15
+bufferGoal = 5
 bufferRange = 5
 
 

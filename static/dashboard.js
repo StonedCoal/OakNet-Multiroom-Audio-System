@@ -44,6 +44,20 @@
     });
   };
 
+  function addStaticStream(inputId){
+    $.ajax({
+      url: 'addstaticstream/'+$("#static-address").val(),
+      dataType: 'none',
+      type: 'post',
+      success: function(data) { 
+        
+      },
+      error: function() { 
+        
+      }
+    });
+  };
+
   function saveSettings(){
     var checkedBoxes = document.querySelectorAll('input[name=deviceCheckbox]:checked');
     var result={
