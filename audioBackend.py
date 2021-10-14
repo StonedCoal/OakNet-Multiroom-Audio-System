@@ -38,7 +38,7 @@ def addInputDevice(inDeviceId, channels, samprate):
     #stream.start_stream()
     def readFunc():
         while True:
-            in_data= stream.read(int(framesPerBuffer))
+            in_data= stream.read(int(stream.get_read_available()/1024))
             peakVal = audioop.rms(in_data, 2)    
             peaks[inDeviceId] = peakVal
             if(activeInputDevice == inDeviceId):
