@@ -51,12 +51,14 @@ def outCallback(inData, frame_count, time_info, status):
     else:
         lastTimestamp=lastTimestamp+1
     if(len(buffer) < bufferGoal - bufferRange):
+        print("Underrun")
         if(isBuffering>0):
             isBuffering=isBuffering-1
             return b'\x00'*(1024*frameBufferSizeMultiplicator), pyaudio.paContinue
         else:
             isBuffering = frameBufferSizeMultiplicator
     if(len(buffer) > bufferGoal + bufferRange):
+        print("Overflow")
         buffer.pop(0)
     if(len(buffer)<frameBufferSizeMultiplicator):
         return b'\x00'*(1024*frameBufferSizeMultiplicator), pyaudio.paContinue
