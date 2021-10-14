@@ -43,9 +43,8 @@ def addInputDevice(inDeviceId, channels, samprate):
             peaks[inDeviceId] = peakVal
             if(activeInputDevice == inDeviceId):
                 network.sendBatch(in_data)
-            return None, pyaudio.paContinue
     audioThread = threading.Thread(target=readFunc, daemon=True)
-    audioThread.start();
+    audioThread.start()
 
 def outCallback(inData, frame_count, time_info, status):
     global isBuffering, bufferRange, bufferRangeTight, lastTimestamp
