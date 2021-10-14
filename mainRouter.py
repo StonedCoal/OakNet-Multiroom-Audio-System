@@ -39,34 +39,39 @@ def createDefaultConfig():
             "port":6980,
             "outStreamName": "Stream1",
             "inStreamName": "Stream1",
-            "inDeviceId": "1"
+            "inDeviceId": "-1",
+            "selectedOutput": "-1"
+        },
+        "audioBackend":{
+            "bufferGoal": 50,
+            "bufferRange": 10,
+            "bufferRangeTight": 3
         },
         "activeInputDevices":{}
     }
 
 def loadConfig():
-    if(os.path.exists(os.getcwd()+"/data/config.json")):
+    if(os.path.exists(os.getcwd()+"/data/router.json")):
         try:
-            with open(os.getcwd()+"/data//config.json") as file:
+            with open(os.getcwd()+"/data/router.json") as file:
                 jsonfile=file.read()
                 config=json.loads(jsonfile)
         except IOError:
-            print("Cannot open config.json")
+            print("Cannot open router.json")
 
     else:
         config=createDefaultConfig()
         saveConfig(config)
-
     return config
 
 
 def saveConfig(config):
     jsonfile=json.dumps(config, indent=4)
     try:
-        with open(os.getcwd()+"/data//config.json","w") as file:
+        with open(os.getcwd()+"/data/router.json","w") as file:
             file.write(jsonfile)
     except IOError:
-        print("Cannot open config.json")
+        print("Cannot open router.json")
 
 
 config=loadConfig();
@@ -78,8 +83,8 @@ sock.bind(("0.0.0.0", int(config["VBAN"]["port"])))
 #VBan Send Stuff
 vbanSend = VBAN_Send(streamName=config["VBAN"]["outStreamName"], socket=sock, sampRate=44100,inDeviceIndex=5,verbose=False)
 
-
 #Audio Backend stuff
+audioBackend.setConfig(config)
 audioBackend.setVBANSend(vbanSend)
 for deviceID in config["activeInputDevices"]:
     audioBackend.addInputDevice(int(deviceID), 2, 44100)

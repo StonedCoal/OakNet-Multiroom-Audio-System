@@ -8,8 +8,8 @@ p = pyaudio.PyAudio()
 peaks = dict()
 buffer = list()
 isBuffering = False
-bufferGoal = 40
-bufferRange = 10
+bufferGoal = 5
+bufferRange = 5
 bufferRangeTight = 3
 lastTimestamp=0
 
@@ -17,6 +17,12 @@ lastTimestamp=0
 def setVBANSend(vbanSend_):
     global vbanSendObj
     vbanSendObj = vbanSend_
+
+def setConfig(config):
+    global bufferGoal, bufferRange, bufferRangeTight
+    bufferGoal = config["audioBackend"]["bufferGoal"]
+    bufferRange = config["audioBackend"]["bufferRange"]
+    bufferRangeTight = config["audioBackend"]["bufferRangeTight"]
 
 def createCallback(deviceId):
     def callbackFunc(in_data, frame_count, time_info, status):
