@@ -2,6 +2,7 @@ import pyaudio
 import audioop
 import datetime
 import network
+import threading
 from datetime import timedelta,  datetime
 
 activeInputDevice = 5
@@ -13,7 +14,7 @@ bufferGoal = 50
 bufferRange = 5
 bufferRangeTight = 3
 lastTimestamp=0
-frameBufferSizeMultiplicator = 8
+frameBufferSizeMultiplicator = 1
 
 framesPerBuffer = (network.packetSize/4)*frameBufferSizeMultiplicator
 
@@ -33,8 +34,18 @@ def createCallback(deviceId):
     return callbackFunc
 
 def addInputDevice(inDeviceId, channels, samprate):
-    stream = p.open(format=p.get_format_from_width(2), channels=channels,rate=samprate, input=True,input_device_index = inDeviceId, frames_per_buffer=int(framesPerBuffer), stream_callback=createCallback(inDeviceId))
-    stream.start_stream()
+    stream = p.open(format=p.get_format_from_width(2), channels=channels,rate=samprate, input=True,input_device_index = inDeviceId, frames_per_buffer=int(framesPerBuffer))
+    #stream.start_stream()
+    def readFunc():
+        while True:
+            in_data= stream.read(255)
+            peakVal = audioop.rms(in_data, 2)    
+            peaks[inDeviceId] = peakVal
+            if(activeInputDevice == inDeviceId):
+                network.sendBatch(in_data)
+            return None, pyaudio.paContinue
+    audioThread = threading.Thread(target=readFunc, daemon=True)
+    audioThread.start();
 
 def outCallback(inData, frame_count, time_info, status):
     global isBuffering, bufferRange, bufferRangeTight, lastTimestamp
