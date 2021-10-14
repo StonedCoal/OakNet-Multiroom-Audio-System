@@ -1,4 +1,4 @@
-from pyVBAN import *
+import network
 import threading
 import audioBackend
 import socket
@@ -83,8 +83,8 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # UDP
 sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 sock.bind(("0.0.0.0", config["VBAN"]["port"]))
 
-# VBAN Receive Stuff
-vbanRecv = VBAN_Recv(streamName=config["VBAN"]["inStreamName"], socket=sock, verbose=False)
+# networkstuff
+network.setSocket(sock)
 
 #Audio Backend stuff
 audioBackend.setConfig(config)
@@ -92,13 +92,10 @@ audioBackend.setVBanOutputDevice(config["VBAN"]["inDeviceId"], 2, 44100)
 
 def recvFunc():
     while True:
-        result = vbanRecv.runonce();
+        result = network.receiveOnce();
 
 recvThread = threading.Thread(target=recvFunc, daemon=True)
 recvThread.start();
-
-#VBAN Text Stuff
-vbanText = VBAN_SendText(streamName=config["VBAN"]["inStreamName"], socket=sock, verbose=False)
 
 
 import time
@@ -110,7 +107,7 @@ while True:
     time.sleep(0.1)
     #print (len(audioBackend.buffer))
     if(counter % 10 == 0):
-        vbanText.send("GIMMESTREAM", config["network"]["routerAddress"], config["network"]["routerPort"])
+        network.sendHandshake((config["network"]["routerAddress"], config["network"]["routerPort"]))
     counter+=1
     if(counter >=100000):
         counter = 0

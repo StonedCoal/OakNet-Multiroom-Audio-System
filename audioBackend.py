@@ -1,22 +1,21 @@
 import pyaudio
 import audioop
 import datetime
+import network
 from datetime import timedelta,  datetime
 
 activeInputDevice = 5
 p = pyaudio.PyAudio()
 peaks = dict()
 buffer = list()
-isBuffering = False
-bufferGoal = 5
+isBuffering = 0
+bufferGoal = 50
 bufferRange = 5
 bufferRangeTight = 3
 lastTimestamp=0
+frameBufferSizeMultiplicator = 8
 
-
-def setVBANSend(vbanSend_):
-    global vbanSendObj
-    vbanSendObj = vbanSend_
+framesPerBuffer = (network.packetSize/4)*frameBufferSizeMultiplicator
 
 def setConfig(config):
     global bufferGoal, bufferRange, bufferRangeTight
@@ -29,12 +28,12 @@ def createCallback(deviceId):
         peakVal = audioop.rms(in_data, 2)    
         peaks[deviceId] = peakVal
         if(activeInputDevice == deviceId):
-            vbanSendObj.runonce(in_data)
+            network.sendBatch(in_data)
         return None, pyaudio.paContinue
     return callbackFunc
 
 def addInputDevice(inDeviceId, channels, samprate):
-    stream = p.open(format=p.get_format_from_width(2), channels=channels,rate=samprate, input=True,input_device_index = inDeviceId, frames_per_buffer=255, stream_callback=createCallback(inDeviceId))
+    stream = p.open(format=p.get_format_from_width(2), channels=channels,rate=samprate, input=True,input_device_index = inDeviceId, frames_per_buffer=int(framesPerBuffer), stream_callback=createCallback(inDeviceId))
     stream.start_stream()
 
 def outCallback(inData, frame_count, time_info, status):
@@ -44,20 +43,23 @@ def outCallback(inData, frame_count, time_info, status):
         if(len(buffer)>bufferGoal+bufferRangeTight):
             buffer.pop(0)
         elif(len(buffer)<bufferGoal-bufferRangeTight):
-            return b'\x00'*1024, pyaudio.paContinue
+            return b'\x00'*(1024*frameBufferSizeMultiplicator), pyaudio.paContinue
     else:
         lastTimestamp=lastTimestamp+1
     if(len(buffer) < bufferGoal - bufferRange):
-        if(not isBuffering):
-            isBuffering = True
-            return b'\x00'*1024, pyaudio.paContinue
+        if(isBuffering>0):
+            isBuffering=isBuffering-1
+            return b'\x00'*(1024*frameBufferSizeMultiplicator), pyaudio.paContinue
         else:
-            isBuffering=False
+            isBuffering = frameBufferSizeMultiplicator
     if(len(buffer) > bufferGoal + bufferRange):
         buffer.pop(0)
-    if(len(buffer)==0):
-        return b'\x00'*1024, pyaudio.paContinue
-    return buffer.pop(0), pyaudio.paContinue
+    if(len(buffer)<frameBufferSizeMultiplicator):
+        return b'\x00'*(1024*frameBufferSizeMultiplicator), pyaudio.paContinue
+    buildBuffer=buffer.pop(0)
+    for i in range(0, frameBufferSizeMultiplicator-1):
+        buildBuffer= buildBuffer+buffer.pop(0)
+    return buildBuffer, pyaudio.paContinue
 
 inStream=None
 lastDeviceId=None
@@ -71,5 +73,5 @@ def setVBanOutputDevice(outDeviceId, channels, samprate):
     if (inStream != None):
         inStream.close()
 
-    inStream = p.open(format = p.get_format_from_width(2), channels = channels, rate = samprate, output = True, output_device_index=outDeviceId, stream_callback=outCallback, frames_per_buffer=255)
+    inStream = p.open(format = p.get_format_from_width(2), channels = channels, rate = samprate, output = True, output_device_index=outDeviceId, stream_callback=outCallback, frames_per_buffer=int(framesPerBuffer))
     inStream.start_stream()

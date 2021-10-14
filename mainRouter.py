@@ -14,8 +14,7 @@ for i in range(0, numdevices):
     if (p.get_device_info_by_host_api_device_index(0, i).get('maxOutputChannels')) > 0:
         availableOutputDevices[i] = p.get_device_info_by_host_api_device_index(0, i).get('name');
         #print("Output Device id ", i, " - ", p.get_device_info_by_host_api_device_index(0, i).get('name'))
-
-from pyVBAN import *
+        
 import threading
 import audioBackend
 import datetime
@@ -28,6 +27,7 @@ from os import path
 from flask import Flask, render_template, request
 import json
 import sys
+import network
 
 #Config stuff
 if(not path.exists(os.getcwd()+"/data")):
@@ -80,17 +80,14 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # UDP
 sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 sock.bind(("0.0.0.0", int(config["VBAN"]["port"])))
 
-#VBan Send Stuff
-vbanSend = VBAN_Send(streamName=config["VBAN"]["outStreamName"], socket=sock, sampRate=44100,inDeviceIndex=5,verbose=False)
+#network Stuff
+network.setSocket(sock)
 
 #Audio Backend stuff
 audioBackend.setConfig(config)
-audioBackend.setVBANSend(vbanSend)
 for deviceID in config["activeInputDevices"]:
     audioBackend.addInputDevice(int(deviceID), 2, 44100)
 
-# VBAN Receive Stuff
-vbanRecv = VBAN_Recv(streamName="Stream1", socket=sock, verbose=False)
 #Audio Backend stuff
 audioBackend.setVBanOutputDevice(int(config["VBAN"]["selectedOutput"]), 2, 44100)
 
@@ -98,11 +95,11 @@ connectedClients = dict();
 def recvFunc():
     global connectedClients
     while True:
-        Text, addr = vbanRecv.runonce()
-        if(Text == "GIMMESTREAM"):
+        addr = network.receiveOnce()
+        if(addr[0]!=None):
             if(not addr in connectedClients):
                 print("Client "+addr[0] +" connected")
-                vbanSend.addClient(addr)
+                network.addClient(addr)
             connectedClients[addr] = datetime.now()
                 
 
@@ -132,7 +129,7 @@ def mainFunc():
                 if((datetime.now() - timestamp).total_seconds()>=4):
                     print("Client "+addr[0] +" disconnected")
                     connectedClients.pop(addr, None);
-                    vbanSend.removeClient(addr)
+                    network.removeClient(addr)
         counter+=1
         if(counter >=100000):
             counter = 0
@@ -142,6 +139,10 @@ mainThread.start();
 
 #Webserver Stuff
 app = Flask(__name__)
+
+import logging
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
 
 @app.route("/")
 def index():
@@ -172,7 +173,7 @@ def addstaticstream(address):
             address=address+":6980"
         chunks = address.split(":")
         addr= (chunks[0], int(chunks[1]))
-        vbanSend.addClient(addr)
+        network.addClient(addr)
         connectedClients[addr] = -1
         print("debug")
     except:
