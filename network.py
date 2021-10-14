@@ -1,5 +1,5 @@
 
-packetSize=1024
+packetSize=1280
 
 
 import struct
@@ -62,8 +62,8 @@ def receiveOnce():
     if(abs(missingframes) < 5):
         while (missingframes > 0):
             print("Missing Frame")
-            audioBackend.buffer.append(b'\x00'*1024)
+            audioBackend.buffer.append(b'\x00'*packetSize)
             missingframes = missingframes-1
     frameCounterIn = currentFrameCount
-    audioBackend.buffer.append(rawPcm[:1024])
+    audioBackend.buffer.append(rawPcm[:packetSize])
     return (None, None)

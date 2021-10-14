@@ -1,5 +1,6 @@
 import pyaudio
 import audioop
+import array
 import datetime
 import network
 from datetime import timedelta,  datetime
@@ -27,10 +28,14 @@ def setConfig(config):
 async def send(data):
     network.sendBatch(data)
 
+async def calcPeak(data, deviceId):
+    peakVal = audioop.rms(data, 2)    
+    peaks[deviceId] = peakVal
+
 def createCallback(deviceId):
     def callbackFunc(in_data, frame_count, time_info, status):
-        peakVal = audioop.rms(in_data, 2)    
-        peaks[deviceId] = peakVal
+        in_data = bytearray(in_data)
+        asyncio.run(calcPeak(in_data[:128], deviceId))
         if(activeInputDevice == deviceId):
             asyncio.run(send(in_data))
         return None, pyaudio.paContinue
@@ -47,21 +52,21 @@ def outCallback(inData, frame_count, time_info, status):
         if(len(buffer)>bufferGoal+bufferRangeTight):
             buffer.pop(0)
         elif(len(buffer)<bufferGoal-bufferRangeTight):
-            return b'\x00'*(1024*frameBufferSizeMultiplicator), pyaudio.paContinue
+            return b'\x00'*(network.packetSize*frameBufferSizeMultiplicator), pyaudio.paContinue
     else:
         lastTimestamp=lastTimestamp+1
     if(len(buffer) < bufferGoal - bufferRange):
         print("Underrun")
         if(isBuffering>0):
             isBuffering=isBuffering-1
-            return b'\x00'*(1024*frameBufferSizeMultiplicator), pyaudio.paContinue
+            return b'\x00'*(network.packetSize*frameBufferSizeMultiplicator), pyaudio.paContinue
         else:
             isBuffering = frameBufferSizeMultiplicator
     if(len(buffer) > bufferGoal + bufferRange):
         print("Overflow")
         buffer.pop(0)
     if(len(buffer)<frameBufferSizeMultiplicator):
-        return b'\x00'*(1024*frameBufferSizeMultiplicator), pyaudio.paContinue
+        return b'\x00'*(network.packetSize*frameBufferSizeMultiplicator), pyaudio.paContinue
     buildBuffer=buffer.pop(0)
     for i in range(0, frameBufferSizeMultiplicator-1):
         buildBuffer= buildBuffer+buffer.pop(0)
