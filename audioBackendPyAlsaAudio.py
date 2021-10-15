@@ -29,11 +29,11 @@ availableInputDevices = dict()
 availableOutputDevices = dict()
 
 counter = 0
-for device in alsaaudio.pcms(type=alsaaudio.PCM_CAPTURE):
+for device in alsaaudio.pcms(alsaaudio.PCM_CAPTURE):
     availableInputDevices[counter] = device
     counter = counter + 1
 
-for device in alsaaudio.pcms(type=alsaaudio.PCM_PLAYBACK ):
+for device in alsaaudio.pcms(alsaaudio.PCM_PLAYBACK ):
     availableOutputDevices[counter] = device
     counter = counter + 1
 
