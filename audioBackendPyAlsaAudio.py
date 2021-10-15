@@ -48,7 +48,7 @@ def setConfig(config):
     bufferRange = config["audioBackend"]["bufferRange"]
     bufferRangeTight = config["audioBackend"]["bufferRangeTight"]
     frameBufferSizeMultiplicator = config["audioBackend"]["frameBufferSizeMultiplicator"]
-    framesPerBuffer = (network.packetSize/4)*frameBufferSizeMultiplicator
+    framesPerBuffer = int((network.packetSize/4)*frameBufferSizeMultiplicator)
 
 def addInputDevice(inDeviceId):
     # set up audio input
