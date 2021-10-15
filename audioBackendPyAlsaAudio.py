@@ -62,6 +62,8 @@ def addInputDevice(inDeviceId):
             data = bytearray(recorder.read()[1])
             peakVal = audioop.rms(data, 2)    
             peaks[inDeviceId] = peakVal
+            if(activeInputDevice == inDeviceId):
+                network.sendBatch(data)
 
     audioThread = threading.Thread(target=audioFunc, daemon=True)
     audioThread.start()
