@@ -1,7 +1,7 @@
 
 packetSize=1280
 
-
+import time
 import struct
 from typing import Counter
 import audioBackend
@@ -25,6 +25,12 @@ def setSocket(socketIn):
     global socket
     socket = socketIn
 
+def accurate_delay(delay):
+    ''' Function to provide accurate time delay in millisecond
+    '''
+    _ = time.perf_counter() + delay/1000
+    while time.perf_counter() < _:
+        pass
 
 def sendBatch(data):
     global socket, frameCounterOut
@@ -33,6 +39,7 @@ def sendBatch(data):
         frameCounterOut = frameCounterOut+1
         for addr in connectedClients:
             socket.sendto(packet, addr)
+        accurate_delay(5.74)
 
 
 def sendHandshake(peer):

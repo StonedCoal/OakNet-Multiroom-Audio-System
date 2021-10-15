@@ -45,8 +45,8 @@ def createDefaultConfig():
         },
         "audioBackend":{
             "bufferGoal": 50,
-            "bufferRange": 10,
-            "bufferRangeTight": 3
+            "bufferRange": 20,
+            "bufferRangeTight": 12
         },
     }
 

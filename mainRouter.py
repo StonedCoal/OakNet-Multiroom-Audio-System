@@ -14,7 +14,7 @@ for i in range(0, numdevices):
     if (p.get_device_info_by_host_api_device_index(0, i).get('maxOutputChannels')) > 0:
         availableOutputDevices[i] = p.get_device_info_by_host_api_device_index(0, i).get('name');
         #print("Output Device id ", i, " - ", p.get_device_info_by_host_api_device_index(0, i).get('name'))
-        
+
 import threading
 import audioBackend
 import datetime
@@ -45,7 +45,7 @@ def createDefaultConfig():
         "audioBackend":{
             "bufferGoal": 50,
             "bufferRange": 10,
-            "bufferRangeTight": 3
+            "bufferRangeTight": 12
         },
         "activeInputDevices":{}
     }
@@ -89,7 +89,7 @@ for deviceID in config["activeInputDevices"]:
     audioBackend.addInputDevice(int(deviceID), 2, 44100)
 
 #Audio Backend stuff
-audioBackend.setVBanOutputDevice(int(config["VBAN"]["selectedOutput"]), 2, 44100)
+#audioBackend.setVBanOutputDevice(int(config["VBAN"]["selectedOutput"]), 2, 44100)
 
 connectedClients = dict();
 def recvFunc():
