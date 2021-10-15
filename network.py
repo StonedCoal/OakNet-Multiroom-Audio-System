@@ -29,13 +29,6 @@ def setSocket(socketIn):
     global socket
     socket = socketIn
 
-def accurate_delay(delay, elapsed):
-    ''' Function to provide accurate time delay in millisecond
-    '''
-    _ = time.perf_counter() + delay/1000 - elapsed
-    while time.perf_counter() < _:
-        pass
-
 def sendBatch(data):
     global socket, frameCounterOut
     elapsed = time.perf_counter()
@@ -44,9 +37,6 @@ def sendBatch(data):
         frameCounterOut = frameCounterOut+1
         for addr in connectedClients:
             socket.sendto(packet, addr)
-        accurate_delay(4, time.perf_counter() - elapsed)
-        print(time.perf_counter() - elapsed)
-        elapsed = time.perf_counter()
 
 
 def sendHandshake(peer):
