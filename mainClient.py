@@ -68,14 +68,14 @@ config = loadConfig();
 #Net Socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # UDP
 sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-sock.bind(("0.0.0.0", config["VBAN"]["port"]))
+sock.bind(("0.0.0.0", config["network"]["routerPort"]))
 
 # networkstuff
 network.setSocket(sock)
 
 #Audio Backend stuff
 audioBackend.setConfig(config)
-audioBackend.setOutputDevice(config["VBAN"]["inDeviceId"])
+audioBackend.setOutputDevice(config["audioBackend"]["inDeviceId"])
 
 def recvFunc():
     while True:

@@ -148,16 +148,12 @@
                         </div>
                         <hr>
                         <h5>VBAN Settings:</h5>
-                        <label for="vbanPort" class="form-label">VBAN Port</label>
-                        <input type="text" id="vbanPort" class="form-control" aria-describedby="vbanPortHelpBlock" value="{{ config["VBAN"]["port"] }}">
-                        <label for="outputStreamName" class="form-label">VBAN Out Stream Name</label>
-                        <input type="text" id="outputStreamName" class="form-control" aria-describedby="outputStreamNameHelpBlock" value="{{ config["VBAN"]["outStreamName"] }}">
-                        <label for="inputStreamName" class="form-label">VBAN In Stream Name</label>
-                        <input type="text" id="inputStreamName" class="form-control" aria-describedby="inputStreamNameHelpBlock" value="{{ config["VBAN"]["inStreamName"] }}">
-                        <label for="inputStreamDevice" class="form-label">VBAN In Output Device</label>
+                        <label for="vbanPort" class="form-label">Port</label>
+                        <input type="text" id="vbanPort" class="form-control" aria-describedby="vbanPortHelpBlock" value="{{ config["network"]["port"] }}">
+                        <label for="inputStreamDevice" class="form-label">Stream In Output Device</label>
                         <select id="inputStreamDevice" class="form-select" aria-label="inputDeviceSelection">
                             {%for id, name in availableOutputs.items() %}
-                            <option value="{{ id }}" {% if id|string == config["VBAN"]["selectedOutput"] %} selected {% endif %}>ID: {{ id }} - {{ name }}</option>
+                            <option value="{{ id }}" {% if id|string == config["audioBackend"]["selectedOutput"] %} selected {% endif %}>ID: {{ id }} - {{ name }}</option>
                             {% endfor %}
                         </select>
                         <hr>
