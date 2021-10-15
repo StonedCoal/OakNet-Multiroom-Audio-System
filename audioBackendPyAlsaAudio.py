@@ -63,5 +63,5 @@ def addInputDevice(inDeviceId):
             peakVal = audioop.rms(data, 2)    
             peaks[inDeviceId] = peakVal
 
-    audioThread = threading.Thread(audioFunc, daemon=True)
+    audioThread = threading.Thread(target=audioFunc, daemon=True)
     audioThread.start()
