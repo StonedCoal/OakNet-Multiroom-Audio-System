@@ -44,10 +44,12 @@ def getAvailableOutputDevices():
     return availableOutputDevices
 
 def setConfig(config):
-    global bufferGoal, bufferRange, bufferRangeTight
+    global bufferGoal, bufferRange, bufferRangeTight, frameBufferSizeMultiplicator, framesPerBuffer
     bufferGoal = config["audioBackend"]["bufferGoal"]
     bufferRange = config["audioBackend"]["bufferRange"]
     bufferRangeTight = config["audioBackend"]["bufferRangeTight"]
+    frameBufferSizeMultiplicator = config["audioBackend"]["frameBufferSizeMultiplicator"]
+    framesPerBuffer = (network.packetSize/4)*frameBufferSizeMultiplicator
 
 async def send(data):
     network.sendBatch(data)
@@ -98,7 +100,7 @@ def outCallback(inData, frame_count, time_info, status):
 
 inStream=None
 lastDeviceId=None
-def setVBanOutputDevice(outDeviceId, channels, samprate):
+def setOutputDevice(outDeviceId):
     global lastDeviceId, inStream
     if(outDeviceId == None):
         outDeviceId=lastDeviceId
@@ -108,5 +110,5 @@ def setVBanOutputDevice(outDeviceId, channels, samprate):
     if (inStream != None):
         inStream.close()
 
-    inStream = p.open(format = p.get_format_from_width(2), channels = channels, rate = samprate, output = True, output_device_index=outDeviceId, stream_callback=outCallback, frames_per_buffer=int(framesPerBuffer))
+    inStream = p.open(format = p.get_format_from_width(2), channels = 2, rate = 44100, output = True, output_device_index=outDeviceId, stream_callback=outCallback, frames_per_buffer=int(framesPerBuffer))
     inStream.start_stream()

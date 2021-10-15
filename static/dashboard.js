@@ -61,10 +61,10 @@
   function saveSettings(){
     var checkedBoxes = document.querySelectorAll('input[name=deviceCheckbox]:checked');
     var result={
-      VBAN:{
-        port:$("#vbanPort").val(),
-        outStreamName:$("#outputStreamName").val(),
-        inStreamName:$("#inputStreamName").val(),
+      network:{
+        port:$("#vbanPort").val()
+      },
+      audioBackend:{
         selectedOutput:$("#inputStreamDevice").val()
       },
       activeInputDevices:{}

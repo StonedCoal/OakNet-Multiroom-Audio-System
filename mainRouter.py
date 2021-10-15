@@ -22,17 +22,15 @@ if(not path.exists(os.getcwd()+"/data")):
 
 def createDefaultConfig():
     return {
-        "VBAN":{
+        "network":{
             "port":6980,
-            "outStreamName": "Stream1",
-            "inStreamName": "Stream1",
-            "inDeviceId": "-1",
-            "selectedOutput": "-1"
         },
         "audioBackend":{
             "bufferGoal": 50,
-            "bufferRange": 10,
-            "bufferRangeTight": 12
+            "bufferRange": 15,
+            "bufferRangeTight": 5,
+            "frameBufferSizeMultiplicator": 1,
+            "selectedOutput": "-1"
         },
         "activeInputDevices":{}
     }
@@ -65,7 +63,7 @@ config=loadConfig();
 #VBAN Socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # UDP
 sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-sock.bind(("0.0.0.0", int(config["VBAN"]["port"])))
+sock.bind(("0.0.0.0", int(config["network"]["port"])))
 
 #network Stuff
 network.setSocket(sock)
@@ -91,7 +89,7 @@ def recvFunc():
                 
 
 recvThread = threading.Thread(target=recvFunc, daemon=True)
-recvThread.start();
+recvThread.start()
 
 clear = lambda: os.system('cls')
 #time.sleep(0.1)
@@ -170,7 +168,8 @@ def addstaticstream(address):
 @app.route("/savesettings", methods = ['POST'])
 def saveSettings():
     response=request.json
-    config["VBAN"] = response["VBAN"]
+    config["network"]["port"] = response["network"]["port"]
+    config["audioBackend"]["selectedOutput"] = response["audioBackend"]["selectedOutput"]
     config["activeInputDevices"] = response["activeInputDevices"]
     saveConfig(config)
     os.execl(sys.executable, os.path.abspath(__file__), *sys.argv)

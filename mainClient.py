@@ -9,20 +9,6 @@ import socket
 import os
 from os import path
 import json
-import pyaudio
-p = pyaudio.PyAudio()
-info = p.get_host_api_info_by_index(0)
-numdevices = info.get('deviceCount')
-availableInputDevices = dict()
-availableOutputDevices = dict()
-
-for i in range(0, numdevices):
-    if (p.get_device_info_by_host_api_device_index(0, i).get('maxInputChannels')) > 0:
-        availableInputDevices[i] = p.get_device_info_by_host_api_device_index(0, i).get('name');          
-
-for i in range(0, numdevices):
-    if (p.get_device_info_by_host_api_device_index(0, i).get('maxOutputChannels')) > 0:
-        availableOutputDevices[i] = p.get_device_info_by_host_api_device_index(0, i).get('name');
 
 #Config stuff
 
@@ -42,15 +28,12 @@ def createDefaultConfig():
             "routerAddress": "127.0.0.1",
             "routerPort": 6980
         },
-        "VBAN":{
-            "port":6980,
-            "inStreamName": "Stream1",
-            "inDeviceId": -1
-        },
         "audioBackend":{
             "bufferGoal": 50,
-            "bufferRange": 20,
-            "bufferRangeTight": 12
+            "bufferRange": 15,
+            "bufferRangeTight": 5,
+            "frameBufferSizeMultiplicator": 1,
+            "inDeviceId": -1
         },
     }
 
@@ -67,13 +50,13 @@ def loadConfig():
         config=createDefaultConfig()
         saveConfig(config)
     
-    if (config["VBAN"]["inDeviceId"] == -1):
-        for key, val in availableOutputDevices.items():
+    if (config["audioBackend"]["inDeviceId"] == -1):
+        for key, val in audioBackend.availableOutputDevices.items():
             print(str(key) + ": " + val)
         while(True):
             try:
                 userInput = int(input("Which output device id: \t"))
-                config["VBAN"]["inDeviceId"] = userInput
+                config["audioBackend"]["inDeviceId"] = userInput
                 saveConfig(config)
                 break
             except:
@@ -82,7 +65,7 @@ def loadConfig():
 
 config = loadConfig();
 
-#VBAN Socket
+#Net Socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # UDP
 sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 sock.bind(("0.0.0.0", config["VBAN"]["port"]))
@@ -92,7 +75,7 @@ network.setSocket(sock)
 
 #Audio Backend stuff
 audioBackend.setConfig(config)
-audioBackend.setVBanOutputDevice(config["VBAN"]["inDeviceId"], 2, 44100)
+audioBackend.setOutputDevice(config["VBAN"]["inDeviceId"])
 
 def recvFunc():
     while True:
@@ -106,7 +89,7 @@ import time
 import os
 
 # Main Loop
-counter = 0;
+counter = 0
 while True:
     time.sleep(0.1)
     #print (len(audioBackend.buffer))
