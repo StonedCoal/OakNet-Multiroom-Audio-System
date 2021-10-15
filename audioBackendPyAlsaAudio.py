@@ -21,7 +21,7 @@ frameBufferSizeMultiplicator = 1
 CHANNELS    = 1
 INFORMAT    = alsaaudio.PCM_FORMAT_S16_LE
 RATE        = 44100
-FRAMESIZE   = int((network.packetSize/4)*frameBufferSizeMultiplicator)
+framesPerBuffer   = int((network.packetSize/4)*frameBufferSizeMultiplicator)
 
 availableInputDevices = dict()
 availableOutputDevices = dict()
@@ -56,7 +56,7 @@ def addInputDevice(inDeviceId):
     recorder.setchannels(CHANNELS)
     recorder.setrate(RATE)
     recorder.setformat(INFORMAT)
-    recorder.setperiodsize(FRAMESIZE)
+    recorder.setperiodsize(framesPerBuffer)
     def audioFunc():
         while True:
             data = bytearray(recorder.read()[1])
@@ -80,7 +80,7 @@ def setOutputDevice(outDeviceId):
     player.setchannels(CHANNELS)
     player.setrate(RATE)
     player.setformat(INFORMAT)
-    player.setperiodsize(FRAMESIZE)
+    player.setperiodsize(framesPerBuffer)
     def audioFunc():
         while run:
             global isBuffering, bufferRange, bufferRangeTight, lastTimestamp
