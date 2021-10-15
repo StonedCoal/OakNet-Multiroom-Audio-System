@@ -76,7 +76,7 @@ def setOutputDevice(outDeviceId):
     if(outAudioThread != None):
         outAudioThread.join()
     # set up audio input
-    player=alsaaudio.PCM(type=alsaaudio.PCM_PLAYBACK, device=availableInputDevices[outDeviceId])
+    player=alsaaudio.PCM(type=alsaaudio.PCM_PLAYBACK, device=availableOutputDevices[outDeviceId])
     player.setchannels(CHANNELS)
     player.setrate(RATE)
     player.setformat(INFORMAT)
