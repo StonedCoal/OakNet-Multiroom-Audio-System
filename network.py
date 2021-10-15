@@ -4,7 +4,11 @@ packetSize=1280
 import time
 import struct
 from typing import Counter
-import audioBackend
+import platform
+if(platform.system() == "Linux"):  
+    import audioBackendPyAlsaAudio as audioBackend
+else:
+    import audioBackendPyAudio as audioBackend
 
 
 connectedClients = list()
@@ -25,21 +29,24 @@ def setSocket(socketIn):
     global socket
     socket = socketIn
 
-def accurate_delay(delay):
+def accurate_delay(delay, elapsed):
     ''' Function to provide accurate time delay in millisecond
     '''
-    _ = time.perf_counter() + delay/1000
+    _ = time.perf_counter() + delay/1000 - elapsed
     while time.perf_counter() < _:
         pass
 
 def sendBatch(data):
     global socket, frameCounterOut
+    elapsed = time.perf_counter()
     for i in range(0, int(len(data)/packetSize)):
-        packet = struct.pack("<Q", frameCounterOut) + data[i*packetSize:i*packetSize+packetSize]
+        packet = bytearray() + struct.pack("<Q", frameCounterOut) + data[i*packetSize:i*packetSize+packetSize]
         frameCounterOut = frameCounterOut+1
         for addr in connectedClients:
             socket.sendto(packet, addr)
-        accurate_delay(5.74)
+        accurate_delay(4, time.perf_counter() - elapsed)
+        print(time.perf_counter() - elapsed)
+        elapsed = time.perf_counter()
 
 
 def sendHandshake(peer):

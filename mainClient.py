@@ -1,6 +1,10 @@
 import network
 import threading
-import audioBackend
+import platform
+if(platform.system() == "Linux"):  
+    import audioBackendPyAlsaAudio as audioBackend
+else:
+    import audioBackendPyAudio as audioBackend
 import socket
 import os
 from os import path

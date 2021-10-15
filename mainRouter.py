@@ -1,22 +1,9 @@
-import pyaudio
-p = pyaudio.PyAudio()
-info = p.get_host_api_info_by_index(0)
-numdevices = info.get('deviceCount')
-availableInputDevices = dict()
-availableOutputDevices = dict()
-
-for i in range(0, numdevices):
-    if (p.get_device_info_by_host_api_device_index(0, i).get('maxInputChannels')) > 0:
-        availableInputDevices[i] = p.get_device_info_by_host_api_device_index(0, i).get('name');
-            
-
-for i in range(0, numdevices):
-    if (p.get_device_info_by_host_api_device_index(0, i).get('maxOutputChannels')) > 0:
-        availableOutputDevices[i] = p.get_device_info_by_host_api_device_index(0, i).get('name');
-        #print("Output Device id ", i, " - ", p.get_device_info_by_host_api_device_index(0, i).get('name'))
-
 import threading
-import audioBackend
+import platform
+if(platform.system() == "Linux"):  
+    import audioBackendPyAlsaAudio as audioBackend
+else:
+    import audioBackendPyAudio as audioBackend
 import datetime
 from datetime import datetime
 import socket
@@ -86,7 +73,7 @@ network.setSocket(sock)
 #Audio Backend stuff
 audioBackend.setConfig(config)
 for deviceID in config["activeInputDevices"]:
-    audioBackend.addInputDevice(int(deviceID), 2, 44100)
+    audioBackend.addInputDevice(int(deviceID))
 
 #Audio Backend stuff
 #audioBackend.setVBanOutputDevice(int(config["VBAN"]["selectedOutput"]), 2, 44100)
@@ -146,7 +133,7 @@ log.setLevel(logging.ERROR)
 
 @app.route("/")
 def index():
-    return render_template("index.html", inputs=audioBackend.peaks.keys(), availableInputs=availableInputDevices, availableOutputs=availableOutputDevices, config=config)
+    return render_template("index.html", inputs=audioBackend.peaks.keys(), availableInputs=audioBackend.getAvailableInputDevices(), availableOutputs=audioBackend.getAvailableOutputDevices(), config=config)
 
 @app.route("/info")
 def info():

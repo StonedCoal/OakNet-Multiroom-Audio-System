@@ -6,6 +6,23 @@ import network
 from datetime import timedelta,  datetime
 import asyncio
 
+import pyaudio
+p = pyaudio.PyAudio()
+info = p.get_host_api_info_by_index(0)
+numdevices = info.get('deviceCount')
+availableInputDevices = dict()
+availableOutputDevices = dict()
+
+for i in range(0, numdevices):
+    if (p.get_device_info_by_host_api_device_index(0, i).get('maxInputChannels')) > 0:
+        availableInputDevices[i] = p.get_device_info_by_host_api_device_index(0, i).get('name');
+            
+
+for i in range(0, numdevices):
+    if (p.get_device_info_by_host_api_device_index(0, i).get('maxOutputChannels')) > 0:
+        availableOutputDevices[i] = p.get_device_info_by_host_api_device_index(0, i).get('name');
+        #print("Output Device id ", i, " - ", p.get_device_info_by_host_api_device_index(0, i).get('name'))
+
 activeInputDevice = 5
 p = pyaudio.PyAudio()
 peaks = dict()
@@ -18,6 +35,13 @@ lastTimestamp=0
 frameBufferSizeMultiplicator = 1
 
 framesPerBuffer = (network.packetSize/4)*frameBufferSizeMultiplicator
+
+
+def getAvailableInputDevices():
+    return availableInputDevices
+
+def getAvailableOutputDevices():
+    return availableOutputDevices
 
 def setConfig(config):
     global bufferGoal, bufferRange, bufferRangeTight
@@ -41,8 +65,8 @@ def createCallback(deviceId):
         return None, pyaudio.paContinue
     return callbackFunc
 
-def addInputDevice(inDeviceId, channels, samprate):
-    stream = p.open(format=p.get_format_from_width(2), channels=channels,rate=samprate, input=True,input_device_index = inDeviceId, frames_per_buffer=int(framesPerBuffer), stream_callback=createCallback(inDeviceId))
+def addInputDevice(inDeviceId):
+    stream = p.open(format=p.get_format_from_width(2), channels=2,rate=44100, input=True,input_device_index = inDeviceId, frames_per_buffer=int(framesPerBuffer), stream_callback=createCallback(inDeviceId))
     stream.start_stream()
 
 def outCallback(inData, frame_count, time_info, status):
