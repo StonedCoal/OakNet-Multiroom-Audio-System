@@ -57,11 +57,6 @@
                             </button>
                         </li>
                         <li class="nav-item">
-                           <button class="nav-link" data-bs-toggle="tab" data-bs-target="#radio"  aria-controls="radio" href="#">
-                                Radio
-                            </button>
-                        </li>
-                        <li class="nav-item">
                             <button class="nav-link" data-bs-toggle="tab" data-bs-target="#player"  aria-controls="player" href="#">
                                 Music Player
                             </button>
@@ -122,17 +117,12 @@
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="tab-pane fade" id="radio" role="tabpanel" style="width: 100%;">
-                        <h1 class="h2">Radio</h1>
-                        <hr>
-                        <p>Not Implemented yet!</p>
-                    </div>
 
                     <div class="tab-pane fade" id="player" role="tabpanel" style="width: 100%;">
-                        <h1 class="h2">Music Player</h1>
-                        <hr>
-                        <p>Not Implemented yet!</p>
+                        <div class="me-3">
+                            <iframe frameborder="0" scrolling="no" style="overflow:hidden;height:calc(100vh - 100px);width:100%" height="calc(100vh - 100px)" 
+                                width="100%" src="http://localhost:8080" title="MusicPlayer"></iframe>
+                        </div>
                     </div>
 
                     <div class="tab-pane fade" id="settings" role="tabpanel" style="width: 100%;">
