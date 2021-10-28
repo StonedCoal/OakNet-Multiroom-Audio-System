@@ -24,6 +24,7 @@ def createDefaultConfig():
     return {
         "network":{
             "port":6980,
+            "playeraddress":"http://localhost:4000"
         },
         "audioBackend":{
             "bufferGoal": 50,
