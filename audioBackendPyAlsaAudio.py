@@ -111,6 +111,6 @@ def setOutputDevice(outDeviceId):
             for i in range(0, frameBufferSizeMultiplicator-1):
                 buildBuffer= buildBuffer+buffer.pop(0)
             player.write(buildBuffer)
-    run=True
+
     outAudioThread = threading.Thread(target=audioFunc, daemon=True)
     outAudioThread.start()

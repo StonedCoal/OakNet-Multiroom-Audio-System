@@ -120,18 +120,9 @@ def mainFunc():
             counter = 0
 
 mainThread = threading.Thread(target=mainFunc, daemon=True)
-mainThread.start()
+mainThread.start();
 
 #Webserver Stuff
-
-#MPD Webinterface
-import subprocess
-def ampdFunc():
-    subprocess.call(['java', '-jar', 'ampd-1.3.4.jar'], cwd="ampd/")
-ampdThread = threading.Thread(target=ampdFunc, daemon=True)
-ampdThread.start()
-#Webinterface
-
 app = Flask(__name__)
 
 import logging
@@ -185,4 +176,4 @@ def saveSettings():
 
 
 if(__name__ == "__main__"):
-    app.run(host="0.0.0.0", port=80, debug=False)
+    app.run(host="0.0.0.0", port=8080, debug=False)
