@@ -20,8 +20,16 @@ byte[] audioData;
 
 using (var wav = new AudioFileReader(args[0]))
 {
-    audioData = new byte[wav.Length];
-    wav.Read(audioData, 0, audioData.Length);
+	// Convert IEEEFloat to PCM Samples
+	// Note Depends on AudioFile 
+	// If the File is already PCM16 the wav stream
+	// can be used directly
+    using (var convertedWav = new Wave32To16Stream(wav))
+    {
+        audioData = new byte[convertedWav.Length];
+        convertedWav.Read(audioData, 0, audioData.Length);
+
+    }
 }
 
 

@@ -26,7 +26,8 @@ def createDefaultConfig():
     return {
         "network": {
             "routerAddress": "127.0.0.1",
-            "routerPort": 6980
+            "routerPort": 6980,
+            "clientName": "clientName"
         },
         "audioBackend":{
             "bufferGoal": 50,
