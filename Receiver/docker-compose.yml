@@ -1,0 +1,12 @@
+version: "2.4"
+
+services:
+  oaknet:
+    image: python:3
+    container_name: oaknet
+    restart: always
+    command: sh /var/app/start.sh
+    volumes:
+      - E:/Coding/OakNetMultiroomAudioSystem:/var/app
+    devices:
+     - "/dev/snd/:/dev/snd/"

@@ -3,3 +3,7 @@
 __pycache__/
 bin/
 data/
+Router/cache
+Router/credentials.json
+Router/target
+Streamer/obj

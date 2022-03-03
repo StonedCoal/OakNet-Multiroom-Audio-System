@@ -1,0 +1,20 @@
+Receiving Client -> Server
+Periodically sending (ca. every Second):
+["GIMMESTREAM"] + [32bytes name (unused shall be NUL)ASCII]
+
+Server -> Receiving Client (if input selected)
+[8byte (long) PacketID] + [1280bytes of raw PCM 16bit Stereo Little Endian audio data]
+
+Sending Client -> Server
+["TAKIESTREAM"] + [32bytes name (unused shall be NUL)ASCII] + [8byte (long) PacketID] + [1280bytes of raw PCM 16bit Stereo Little Endian audio data]
+
+
+Serverfinding:
+
+(NOT IMPLEMENTED YET)
+
+Client (Broadcast) -> Server
+["ANYONETHERE"]
+
+Server -> Client
+["ITSAMEMARIO"]
