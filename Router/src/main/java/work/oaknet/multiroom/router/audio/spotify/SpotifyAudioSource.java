@@ -58,7 +58,6 @@ public class SpotifyAudioSource extends AudioSource {
                 @Override
                 public void sessionChanged(@NotNull Session session) {
                     lastPlayer = new Player(playerConfig, session);
-
                     if (shellEvents != null) {
                         session.addReconnectionListener(shellEvents);
                         lastPlayer.addEventsListener(shellEvents);

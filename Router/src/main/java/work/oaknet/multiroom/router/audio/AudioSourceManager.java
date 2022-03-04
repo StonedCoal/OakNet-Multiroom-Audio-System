@@ -30,8 +30,10 @@ public class AudioSourceManager {
                 otherSource.activeClients.removeIf((otherClient) -> client == otherClient);
             }
         }
-        synchronized (source.activeClients) {
-            source.activeClients.add(client);
+        if(source!= null) {
+            synchronized (source.activeClients) {
+                source.activeClients.add(client);
+            }
         }
     }
 

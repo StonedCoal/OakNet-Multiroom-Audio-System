@@ -69,6 +69,19 @@
 
         }
       });
+    } else {
+      $.ajax({
+        url: 'deactivate',
+        dataType: 'none',
+        type: 'post',
+        data: input + ':' + output,
+        success: function (data) {
+        },
+        error: function () {
+
+        }
+      });
+      button.innerHTML = "Activate";
     }
   }
 

@@ -65,5 +65,16 @@ public class Webserver {
             AudioSourceManager.getInstance().setActiveSourceForClient(source, output);
             return "yaay";
         });
+
+        Spark.post("/deactivate", (request, response) -> {
+
+            var command = request.body().split(":");
+            var source = AudioSourceManager.getInstance().getSourceByName(command[0]);
+            var output = ClientManager.getInstance().getClientByName(command[1]);
+            if(source == null || output == null)
+                return"nuuu";
+            AudioSourceManager.getInstance().setActiveSourceForClient(null, output);
+            return "yaay";
+        });
     }
 }

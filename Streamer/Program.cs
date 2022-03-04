@@ -5,7 +5,7 @@ using System.Net.Sockets;
 using System.Text;
 
 // Some constants 
-var address = "127.0.0.1";
+var address = "192.168.2.20";
 var port = 6980;
 var packetSize = 1280;
 var channels = 2;
