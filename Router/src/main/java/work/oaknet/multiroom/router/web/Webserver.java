@@ -16,9 +16,29 @@ import java.util.Map;
 
 public class Webserver {
 
+    private static Webserver instance;
+
+    public static Webserver getInstance() {
+        return instance;
+    }
+
+    private Websocket socket;
+
+    public Websocket getSocket() {
+        return socket;
+    }
+
     public Webserver(){
+        instance = this;
+
+        socket = new Websocket();
         Spark.staticFiles.location("/static");
         Spark.port(80);
+
+        // Websockets
+        Spark.webSocket("/ws", socket);
+
+        // HTTP Endpoints
 
         Spark.get("/", (request, response) -> {
             Map<String, Object> attributes = new HashMap<>();
@@ -34,47 +54,5 @@ public class Webserver {
             attributes.put("outputs", outputs);
             return new ModelAndView(attributes, "template/index.jin");
         }, new JinjavaEngine());
-
-        Spark.get("/info", (request, response) ->{
-            var jo = new JsonObject();
-            var inputs = new JsonArray();
-            for (var source: AudioSourceManager.getInstance().sources) {
-                var input = new JsonObject();
-                input.addProperty("name", source.getName());
-                input.addProperty("level", source.getCurrentAudioLevel());
-                var activeOutputs = new JsonArray();
-                for (var activeClient:source.activeClients) {
-                    var activeOutput = new JsonObject();
-                    activeOutput.addProperty("name", activeClient.name);
-                    activeOutputs.add(activeOutput);
-                }
-                input.add("activeOutputs", activeOutputs);
-                inputs.add(input);
-            }
-            jo.add("inputs", inputs);
-            return jo.toString();
-        });
-
-        Spark.post("/activate", (request, response) -> {
-
-            var command = request.body().split(":");
-            var source = AudioSourceManager.getInstance().getSourceByName(command[0]);
-            var output = ClientManager.getInstance().getClientByName(command[1]);
-            if(source == null || output == null)
-                return"nuuu";
-            AudioSourceManager.getInstance().setActiveSourceForClient(source, output);
-            return "yaay";
-        });
-
-        Spark.post("/deactivate", (request, response) -> {
-
-            var command = request.body().split(":");
-            var source = AudioSourceManager.getInstance().getSourceByName(command[0]);
-            var output = ClientManager.getInstance().getClientByName(command[1]);
-            if(source == null || output == null)
-                return"nuuu";
-            AudioSourceManager.getInstance().setActiveSourceForClient(null, output);
-            return "yaay";
-        });
     }
 }
