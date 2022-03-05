@@ -89,18 +89,6 @@ recvThread.start();
 import time
 import os
 
-# Main Loop
-counter = 0
 while True:
-    time.sleep(0.1)
-    #print (len(audioBackend.buffer))
-    if(counter % 10 == 0):
-        network.sendHandshake((config["network"]["routerAddress"], config["network"]["routerPort"]), config["network"]["clientName"])
-    counter+=1
-    if(counter >=100000):
-        counter = 0
-    #result= "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
-    #for id, val in audioBackend.peaks.items():
-    #        bar = ":" * int(val/20)
-    #        result+='RMS: [%d] %s' % (id, bar)+"\n"
-    #print(result ,end="\r")
+    time.sleep(0.5)
+    network.sendHandshake((config["network"]["routerAddress"], config["network"]["routerPort"]), config["network"]["clientName"])
