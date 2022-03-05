@@ -6,6 +6,7 @@ import work.oaknet.multiroom.router.audio.net.StreamAudioSource;
 import work.oaknet.multiroom.router.audio.spotify.SpotifyAudioSource;
 import work.oaknet.multiroom.router.net.Client;
 import work.oaknet.multiroom.router.web.Webserver;
+import work.oaknet.multiroom.router.web.entities.Audio.ActivationPayload;
 import work.oaknet.multiroom.router.web.entities.Audio.AudioInfo;
 import work.oaknet.multiroom.router.web.entities.Audio.Input;
 import work.oaknet.multiroom.router.web.entities.Audio.Output;
@@ -86,6 +87,27 @@ public class AudioSourceManager {
                 source.activeClients.add(client);
             }
         }
+        var payload = new ActivationPayload();
+        var input=new Input();
+        input.setName(source!=null?source.name:"NOTHINGTOSEEHERELOLXD_JUSTALONGSTRINGWITHMORETHAN32CHARACTERSTOPREVENTACCIDENTIALBLOCKING");
+        payload.setInput(input);
+        var output = new Output();
+        output.setName(client.name);
+        payload.setOutput(output);
+        var command = new Command();
+        command.setCommand("activationEvent");
+        var mapper = new ObjectMapper();
+        try {
+            command.setData(mapper.writeValueAsString(payload));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        try {
+            Webserver.getInstance().getSocket().notifyClients(command);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     public AudioSource getSourceByName(String name){

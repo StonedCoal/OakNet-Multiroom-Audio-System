@@ -30,6 +30,20 @@ function onInfoCommand(data){
   };
 }
 
+function onActivationEvent(payload){
+  let buttons = document.getElementsByTagName('button');
+  for (let i = 0, n = buttons.length; i < n; ++i) {
+    let button = buttons[i];
+    if (button.id.indexOf('toggle') >= 0) {
+      if(button.id.indexOf(payload.output.name) >= 0 && button.id.indexOf(payload.input.name) >= 0){
+        button.innerHTML="Deactivate";
+      }else if(button.id.indexOf(payload.output.name) >= 0) {
+        button.innerHTML = "Activate";
+      }
+    }
+  }
+}
+
 
 let socket = new WebSocket("ws://" + location.host + "/ws");
 
@@ -51,6 +65,9 @@ socket.onmessage = function (event) {
     case "info":
       onInfoCommand(JSON.parse(payload.data))
       break;
+    case "activationEvent":
+      onActivationEvent(JSON.parse(payload.data))
+      break;
   }
 }
 
@@ -70,7 +87,7 @@ socket.onmessage = function (event) {
         })
       }
       socket.send(JSON.stringify(payload))
-      button.innerHTML = "Deactivate";
+      //button.innerHTML = "Deactivate";
     } else {
       let payload = {
         command:"deactivate",
@@ -84,7 +101,7 @@ socket.onmessage = function (event) {
         })
       }
       socket.send(JSON.stringify(payload))
-      button.innerHTML = "Activate";
+      //button.innerHTML = "Activate";
     }
   }
 

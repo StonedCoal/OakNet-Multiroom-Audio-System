@@ -75,8 +75,11 @@ public class Websocket {
 
         for(var session : sessions){
             if(session.isOpen()){
-                session.getRemote().sendString(json);
-                session.getRemote().flush();
+                try {
+                    session.getRemote().sendString(json);
+                    //session.getRemote().flush();
+                }
+                catch(IllegalStateException ignored){}
             }
         }
     }
