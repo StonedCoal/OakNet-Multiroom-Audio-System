@@ -5,25 +5,6 @@ function onInfoCommand(data){
     loudness = loudness + 80;
     $("#progress-" + input.name).css("width", loudness + "%").attr('aria-valuenow', loudness);
     $( "span[id*='badge-" + input.name + "']" ).css("visibility", "hidden");
-
-    /*
-    // WHAT IN THE BLOODY FUKIN HELL DID I WROTE HERE?
-    // However it seems to be working...
-    let nodes = document.getElementsByTagName('button');
-    for (let i = 0, n = nodes.length; i < n; ++i) {
-      let d = nodes[i];
-      if (d.parentNode && d.id.indexOf('toggle') >= 0) {
-        for (let output of input.activeOutputs) {
-          if(d.id.indexOf(output.name) >=0 && d.id.indexOf(input.name) >=0){
-            d.innerHTML="Deactivate";
-            break
-          }
-          d.innerHTML="Activate"
-        }
-      }
-    }
-    // End of mess
-    */
     for (let output of input.activeOutputs) {
       $("#badge-" + input.name + "-" + output.name).css("visibility", "visible");
     }
@@ -44,8 +25,18 @@ function onActivationEvent(payload){
   }
 }
 
+function onNotifyEvent(){
+  location.reload();
+}
 
 let socket = new WebSocket("ws://" + location.host + "/ws");
+
+function checkSocket(){
+  while(socket.readyState == socket.CLOSING);
+  if(socket.readyState == socket.CLOSED)
+    socket = new WebSocket("ws://" + location.host + "/ws");
+  while(socket.readyState == socket.CONNECTING);
+}
 
 socket.onmessage = function (event) {
   // payload
@@ -63,10 +54,13 @@ socket.onmessage = function (event) {
 
   switch (payload.command){
     case "info":
-      onInfoCommand(JSON.parse(payload.data))
+      onInfoCommand(JSON.parse(payload.data));
       break;
     case "activationEvent":
-      onActivationEvent(JSON.parse(payload.data))
+      onActivationEvent(JSON.parse(payload.data));
+      break;
+    case "notify":
+      onNotifyEvent();
       break;
   }
 }
@@ -85,9 +79,9 @@ socket.onmessage = function (event) {
             name: output
           }
         })
-      }
-      socket.send(JSON.stringify(payload))
-      //button.innerHTML = "Deactivate";
+      };
+      checkSocket();
+      socket.send(JSON.stringify(payload));
     } else {
       let payload = {
         command:"deactivate",
@@ -99,52 +93,8 @@ socket.onmessage = function (event) {
             name: output
           },
         })
-      }
-      socket.send(JSON.stringify(payload))
-      //button.innerHTML = "Activate";
+      };
+      checkSocket();
+      socket.send(JSON.stringify(payload));
     }
   }
-
-  function addStaticStream(inputId){
-    $.ajax({
-      url: 'addstaticstream/'+$("#static-address").val(),
-      dataType: 'none',
-      type: 'post',
-      success: function(data) { 
-        
-      },
-      error: function() { 
-        
-      }
-    });
-  };
-
-  function saveSettings(){
-    var checkedBoxes = document.querySelectorAll('input[name=deviceCheckbox]:checked');
-    var result={
-      network:{
-        port:$("#vbanPort").val()
-      },
-      audioBackend:{
-        selectedOutput:$("#inputStreamDevice").val()
-      },
-      activeInputDevices:{}
-    };
-    checkedBoxes.forEach(box => {
-      result.activeInputDevices[box.value]=$("#input-device-description-"+box.value).val()
-    });
-    console.log(result)
-    $.ajax({
-      url: "savesettings",
-      contentType: "application/json; charset=utf-8",
-      type: 'post',
-      data: JSON.stringify(result),
-      success: function(data) { 
-      },
-      error: function() { 
-        
-      }
-    });
-    
-    setTimeout(function () { location.reload(true); }, 3000);
-  };

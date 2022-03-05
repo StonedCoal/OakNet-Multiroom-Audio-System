@@ -1,7 +1,10 @@
 package work.oaknet.multiroom.router.net;
 
 import work.oaknet.multiroom.router.audio.AudioSourceManager;
+import work.oaknet.multiroom.router.web.Webserver;
+import work.oaknet.multiroom.router.web.entities.Command;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.stream.Stream;
@@ -32,10 +35,16 @@ public class ClientManager {
             try {
                 while (true) {
                     synchronized (connectedInClients) {
+                        var sizeBefore = connectedInClients.size();
                         connectedInClients.removeIf((client)->System.currentTimeMillis() - client.lastTimeStamp >3000);
+                        if(connectedInClients.size() - sizeBefore != 0)
+                            notifyWebserverChange();
                     }
                     synchronized (connectedOutClients) {
+                        var sizeBefore = connectedOutClients.size();
                         connectedOutClients.removeIf((client)->System.currentTimeMillis() - client.lastTimeStamp >3000);
+                        if(connectedOutClients.size() - sizeBefore != 0)
+                            notifyWebserverChange();
                     }
                     Thread.sleep(1000);
                 }
@@ -64,6 +73,7 @@ public class ClientManager {
                 result.port = port;
                 result.name = name;
                 connectedOutClients.add(result);
+                notifyWebserverChange();
             }
             result.lastTimeStamp = System.currentTimeMillis();
         }
@@ -84,10 +94,21 @@ public class ClientManager {
                 result.port = port;
                 result.name = name;
                 connectedInClients.add(result);
+                notifyWebserverChange();
             }
             result.lastTimeStamp = System.currentTimeMillis();
         }
         return result;
+    }
+
+    void notifyWebserverChange(){
+        var command = new Command();
+        command.setCommand("notify");
+        try {
+            Webserver.getInstance().getSocket().notifyClients(command);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public Client getClientByName(String name){
