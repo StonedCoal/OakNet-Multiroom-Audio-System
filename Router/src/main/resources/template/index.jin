@@ -89,7 +89,7 @@
                         </div>
                         <hr>
                         <div class="accordion" id="accordionInputs">
-                        {% for input in inputs %}
+                        {% for input, outputs in inputs.items() %}
                             <div class="accordion-item" >
                                 <div class="accordion-header" id="heading-{{ input }}">
                                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ input }}" aria-expanded="false" aria-controls="collapse-{{ input }}">
@@ -105,14 +105,14 @@
                                         </div>
                                         <br>
                                         <div class="d-flex flex-wrap">
-                                            {% for output in outputs %}
+                                            {% for output, active in outputs.items() %}
                                             <div class="card m-1" style="width: 12rem;">
                                                 <div class="card-body text-center">
                                                     <h5 class="card-title">Output:</h5>
                                                     <h6 class="card-subtitle mb-2 text-muted">{{ output }}</h6>
                                                     <span id="badge-{{ input }}-{{ output }}" class="badge bg-primary">Active</span>
                                                     <br><br>
-                                                    <button id="toggle-{{ input }}-{{ output }}" href="#" class="btn btn-primary"  onclick="activate(this.id, '{{ input }}', '{{ output }}')">Activate</button>
+                                                    <button id="toggle-{{ input }}-{{ output }}" href="#" class="btn btn-primary"  onclick="activate(this.id, '{{ input }}', '{{ output }}')">{% if active %}Deactivate{% else %}Activate{% endif %}</button>
                                                 </div>
                                             </div>
                                             {% endfor %}

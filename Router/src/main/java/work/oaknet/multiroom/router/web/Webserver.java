@@ -42,16 +42,16 @@ public class Webserver {
 
         Spark.get("/", (request, response) -> {
             Map<String, Object> attributes = new HashMap<>();
-            List<String> inputs = new ArrayList<>();
+            Map<String, Map<String, Boolean>> inputs = new HashMap<>();
             for (var input : AudioSourceManager.getInstance().sources) {
-                inputs.add(input.getName());
+                Map<String, Boolean> outputs = new HashMap<>();
+                for (var output : ClientManager.getInstance().getConnectedOutClients()) {
+                    outputs.put(output.name, input.activeClients.contains(output));
+                }
+                inputs.put(input.getName(), outputs);
+
             }
             attributes.put("inputs", inputs);
-            List<String> outputs = new ArrayList<>();
-            for (var output : ClientManager.getInstance().getConnectedOutClients()) {
-                outputs.add(output.name);
-            }
-            attributes.put("outputs", outputs);
             return new ModelAndView(attributes, "template/index.jin");
         }, new JinjavaEngine());
     }
