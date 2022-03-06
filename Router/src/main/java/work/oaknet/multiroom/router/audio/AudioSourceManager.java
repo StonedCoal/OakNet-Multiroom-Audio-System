@@ -3,6 +3,7 @@ package work.oaknet.multiroom.router.audio;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import work.oaknet.multiroom.router.audio.net.StreamAudioSource;
+import work.oaknet.multiroom.router.audio.radio.RadioAudioSource;
 import work.oaknet.multiroom.router.audio.spotify.SpotifyAudioSource;
 import work.oaknet.multiroom.router.net.Client;
 import work.oaknet.multiroom.router.web.Webserver;
@@ -25,12 +26,16 @@ public class AudioSourceManager {
     }
 
     private HashMap<Client, StreamAudioSource> streamAudioSources = new HashMap<Client, StreamAudioSource>();
-    public AudioSource spotifyAudioSource = new SpotifyAudioSource();
+    public SpotifyAudioSource spotifyAudioSource = new SpotifyAudioSource();
+    public RadioAudioSource radioAudioSource = new RadioAudioSource();
     public ArrayList<AudioSource> sources = new ArrayList<>();
 
     public AudioSourceManager(){
         instance = this;
         sources.add(spotifyAudioSource);
+        sources.add(radioAudioSource);
+        //radioAudioSource.stream("https://liveradio.swr.de/sw282p3/dasding/play.mp3");
+        radioAudioSource.stream("https://dispatcher.rndfnk.com/br/br3/live/mp3/mid");
         var audioInfoThread = new Thread(()->{
             while(!Thread.interrupted()){
                 var inputs = new ArrayList<Input>();

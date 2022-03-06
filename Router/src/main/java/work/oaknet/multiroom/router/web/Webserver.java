@@ -33,7 +33,7 @@ public class Webserver {
 
         socket = new Websocket();
         Spark.staticFiles.location("/static");
-        Spark.port(80);
+        Spark.port(8080);
 
         // Websockets
         Spark.webSocket("/ws", socket);

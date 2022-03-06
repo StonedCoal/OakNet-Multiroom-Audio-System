@@ -22,6 +22,11 @@
       <option name="url" value="https://oss.sonatype.org/" />
     </remote-repository>
     <remote-repository>
+      <option name="id" value="github" />
+      <option name="name" value="github" />
+      <option name="url" value="https://maven.pkg.github.com/umjammer/mp3spi" />
+    </remote-repository>
+    <remote-repository>
       <option name="id" value="snapshots-repo" />
       <option name="name" value="snapshots-repo" />
       <option name="url" value="https://oss.sonatype.org/content/repositories/snapshots" />

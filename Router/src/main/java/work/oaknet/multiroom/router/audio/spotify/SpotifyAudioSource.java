@@ -77,10 +77,4 @@ public class SpotifyAudioSource extends AudioSource {
         }
 
     }
-
-    @Override
-    public void addAudioData(byte[] frame) {
-        super.addAudioData(frame);
-
-    }
 }

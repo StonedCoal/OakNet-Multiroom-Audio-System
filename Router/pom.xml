@@ -20,6 +20,13 @@
             <releases><enabled>false</enabled></releases>
             <snapshots><enabled>true</enabled></snapshots>
         </repository>
+        <repository>
+            <id>github</id>
+            <url>https://maven.pkg.github.com/umjammer/mp3spi</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
     </repositories>
 
     <groupId>work.oaknet.multiroom</groupId>
@@ -32,6 +39,21 @@
     </properties>
 
    <dependencies>
+       <dependency>
+       <groupId>com.googlecode.soundlibs</groupId>
+       <artifactId>tritonus-share</artifactId>
+       <version>0.3.7-2</version>
+        </dependency>
+       <dependency>
+           <groupId>com.googlecode.soundlibs</groupId>
+           <artifactId>mp3spi</artifactId>
+           <version>1.9.5-1</version>
+       </dependency>
+       <dependency>
+           <groupId>com.googlecode.soundlibs</groupId>
+           <artifactId>vorbisspi</artifactId>
+           <version>1.0.3-1</version>
+       </dependency>
        <dependency>
            <groupId>com.sparkjava</groupId>
            <artifactId>spark-core</artifactId>
@@ -62,30 +84,11 @@
            <artifactId>librespot-player</artifactId>
            <version>1.6.3-SNAPSHOT</version>
        </dependency>
-
        <dependency>
            <groupId>xyz.gianlu.zeroconf</groupId>
            <artifactId>zeroconf</artifactId>
            <version>1.3.3-SNAPSHOT</version>
        </dependency>
-
-       <dependency>
-           <groupId>com.googlecode.soundlibs</groupId>
-           <artifactId>tritonus-share</artifactId>
-           <version>0.3.7.4</version>
-       </dependency>
-       <dependency>
-           <groupId>com.googlecode.soundlibs</groupId>
-           <artifactId>mp3spi</artifactId>
-           <version>1.9.5.4</version>
-       </dependency>
-       <dependency>
-           <groupId>com.googlecode.soundlibs</groupId>
-           <artifactId>vorbisspi</artifactId>
-           <version>1.0.3.3</version>
-       </dependency>
-
-
    </dependencies>
 
     <build>

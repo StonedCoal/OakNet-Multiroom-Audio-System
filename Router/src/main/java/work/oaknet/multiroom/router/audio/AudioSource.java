@@ -10,11 +10,12 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
 
 public class AudioSource {
 
-    ArrayDeque<Integer> offset = new ArrayDeque<Integer>();
-    ArrayDeque<Byte> buf = new ArrayDeque<>();
+    protected ArrayDeque<Byte> buf = new ArrayDeque<>();
     public ArrayList<Client> activeClients = new ArrayList<>();
     boolean isProcessing = false;
     boolean initBuffer = false;
@@ -38,9 +39,9 @@ public class AudioSource {
                 buf.add(data);
             }
         }
-        while(buf.size() > Constants.PACKET_SIZE * 3){
+        while(buf.size() > Constants.PACKET_SIZE * 4 ){
             try {
-                Thread.sleep(1);
+                Thread.sleep(2);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -63,6 +64,7 @@ public class AudioSource {
             while (!Thread.interrupted()) {
                 if(actualTime == 0)
                     actualTime = System.nanoTime();
+                int sendPackets = 0;
                 while (timeSpan > TIME_PER_PACKET_IN_NS){
                     byte[] data = new byte[Constants.PACKET_SIZE + 8];
                     if (buf.size() >= Constants.PACKET_SIZE) {
@@ -86,10 +88,14 @@ public class AudioSource {
                     }
                     timeSpan-=TIME_PER_PACKET_IN_NS;
 
-                    currentAudioLevel=(int) Utils.getRMS(data, Constants.STANDARD_FORMAT, 8);
+                    sendPackets++;
+                    currentAudioLevel=(int) Utils.getRMS(Arrays.copyOfRange(data, 0, 64*Constants.CHANNELS*Constants.BYTES_PER_SAMPLE), Constants.STANDARD_FORMAT, 0);
+
                 }
                 try {
-                    Thread.sleep(TIME_PER_PACKET_IN_NS/1000000, TIME_PER_PACKET_IN_NS%1000000);
+                    var sleeptime = TIME_PER_PACKET_IN_NS - (System.nanoTime() - actualTime) - timeSpan;
+                    if(sleeptime > 0)
+                        Thread.sleep((sleeptime/1000000), (int)(sleeptime%1000000));
 
                     timeSpan+=System.nanoTime() - actualTime;
                     actualTime = System.nanoTime();
@@ -102,6 +108,7 @@ public class AudioSource {
         });
         audioThread.setDaemon(true);
         audioThread.setName(name+"-AudioSource-Thread");
+        audioThread.setPriority(10);
         audioThread.start();
     }
 
