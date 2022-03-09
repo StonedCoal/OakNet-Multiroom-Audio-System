@@ -3,7 +3,7 @@ package work.oaknet.multiroom.router.audio.radio;
 import work.oaknet.multiroom.router.audio.AudioSource;
 import work.oaknet.multiroom.router.util.Constants;
 
-import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.BufferedInputStream;
@@ -11,8 +11,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayDeque;
-import java.util.Arrays;
 
 public class RadioAudioSource extends AudioSource {
 
@@ -29,14 +27,7 @@ public class RadioAudioSource extends AudioSource {
                         while(bytesRead < frame.length){
                             bytesRead += audioInputStream.read(frame, bytesRead, frame.length-bytesRead);
                         }
-                        synchronized (buf) {
-                            if(buf.size()> 10*1024*1024)
-                                buf.clear();
-
-                            for (byte data : frame) {
-                                buf.add(data);
-                            }
-                        }
+                        addAudioData(frame);
                     } catch (IOException e) {
                         e.printStackTrace();
                         audioInputStream = null;
@@ -70,10 +61,11 @@ public class RadioAudioSource extends AudioSource {
         try {
             var inputStream = new BufferedInputStream(url.openStream());
             var mp3stream = AudioSystem.getAudioInputStream(inputStream);
-            audioInputStream =  AudioSystem.getAudioInputStream(Constants.STANDARD_FORMAT, mp3stream);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (UnsupportedAudioFileException e) {
+            var mp3Format = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, (float) mp3stream.getFormat().getSampleRate(), Constants.BYTES_PER_SAMPLE  * 8 , Constants.CHANNELS, 4, (float) mp3stream.getFormat().getSampleRate(), false);
+            var temp = AudioSystem.getAudioInputStream(mp3Format, mp3stream);
+            audioInputStream = AudioSystem.getAudioInputStream(Constants.STANDARD_FORMAT, temp);
+            buf.clear();
+        } catch (IOException | UnsupportedAudioFileException e) {
             e.printStackTrace();
         }
     }

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="RemoteTargetsManager">
+    <targets>
+      <target name="pi@192.168.2.20:22" type="ssh/sftp" uuid="d34c3079-f7a7-4941-ac01-c792e38201b5">
+        <config>
+          <option name="projectRootOnTarget" value="/home/pi/Router" />
+          <option name="serverName" value="pi@192.168.2.20:22 password" />
+        </config>
+        <ContributedStateBase type="JavaLanguageRuntime">
+          <config>
+            <option name="homePath" value="/home/pi/oaknetaudio/jdk-17.0.2+8" />
+          </config>
+        </ContributedStateBase>
+      </target>
+    </targets>
+  </component>
+</project>

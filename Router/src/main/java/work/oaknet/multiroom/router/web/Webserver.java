@@ -4,10 +4,10 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import spark.ModelAndView;
 import spark.Spark;
-import spark.template.jinjava.JinjavaEngine;
 import work.oaknet.multiroom.router.audio.AudioSource;
 import work.oaknet.multiroom.router.audio.AudioSourceManager;
 import work.oaknet.multiroom.router.net.ClientManager;
+import work.oaknet.multiroom.router.util.JinjavaEngine;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -52,6 +52,15 @@ public class Webserver {
 
             }
             attributes.put("inputs", inputs);
+            var radioStations = RadioPlayer.getInstance().getRadioStations().clone();
+            attributes.put("radioStations", radioStations);
+            Map<String, String> outputs = new HashMap<>();
+            for (var output : ClientManager.getInstance().getConnectedOutClients()) {
+                var currentlyPlaying = AudioSourceManager.getInstance().sources.stream().filter((source) -> source.activeClients.contains(output)).findFirst();
+                var currentlyPlayingName = currentlyPlaying.isPresent()? currentlyPlaying.get().getName() : "Nothing";
+                outputs.put(output.name, currentlyPlayingName);
+            }
+            attributes.put("outputs", outputs);
             return new ModelAndView(attributes, "template/index.jin");
         }, new JinjavaEngine());
     }

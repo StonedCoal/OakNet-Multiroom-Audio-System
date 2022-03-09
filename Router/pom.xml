@@ -21,6 +21,12 @@
             <snapshots><enabled>true</enabled></snapshots>
         </repository>
         <repository>
+            <id>repo</id>
+            <url>https://software.rescarta.org/nexus/content/repositories/thirdparty/</url>
+            <releases><enabled>true</enabled></releases>
+            <snapshots><enabled>true</enabled></snapshots>
+        </repository>
+        <repository>
             <id>github</id>
             <url>https://maven.pkg.github.com/umjammer/mp3spi</url>
             <snapshots>
@@ -39,21 +45,21 @@
     </properties>
 
    <dependencies>
-       <dependency>
-       <groupId>com.googlecode.soundlibs</groupId>
-       <artifactId>tritonus-share</artifactId>
-       <version>0.3.7-2</version>
-        </dependency>
+       <!-- https://mvnrepository.com/artifact/com.googlecode.soundlibs/tritonus-all -->
+
+
        <dependency>
            <groupId>com.googlecode.soundlibs</groupId>
            <artifactId>mp3spi</artifactId>
-           <version>1.9.5-1</version>
+           <version>1.9.5.4</version>
        </dependency>
+
        <dependency>
            <groupId>com.googlecode.soundlibs</groupId>
-           <artifactId>vorbisspi</artifactId>
-           <version>1.0.3-1</version>
+           <artifactId>tritonus-all</artifactId>
+           <version>0.3.7.2</version>
        </dependency>
+
        <dependency>
            <groupId>com.sparkjava</groupId>
            <artifactId>spark-core</artifactId>
@@ -65,19 +71,15 @@
            <version>1.7.36</version>
        </dependency>
        <dependency>
-           <groupId>com.sparkjava</groupId>
-           <artifactId>spark-template-jinjava</artifactId>
-           <version>2.7.1</version>
-       </dependency>
-       <dependency>
-           <groupId>org.json</groupId>
-           <artifactId>json</artifactId>
-           <version>20211205</version>
-       </dependency>
-       <dependency>
            <groupId>com.fasterxml.jackson.core</groupId>
            <artifactId>jackson-databind</artifactId>
            <version>2.12.3</version>
+       </dependency>
+
+       <dependency>
+           <groupId>com.hubspot.jinjava</groupId>
+           <artifactId>jinjava</artifactId>
+           <version>2.6.0</version>
        </dependency>
        <dependency>
            <groupId>xyz.gianlu.librespot</groupId>

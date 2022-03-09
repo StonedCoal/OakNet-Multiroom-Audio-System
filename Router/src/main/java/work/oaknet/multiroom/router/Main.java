@@ -1,6 +1,7 @@
 package work.oaknet.multiroom.router;
 
 import work.oaknet.multiroom.router.audio.AudioSourceManager;
+import work.oaknet.multiroom.router.web.RadioPlayer;
 import work.oaknet.multiroom.router.web.Webserver;
 import work.oaknet.multiroom.router.net.Client;
 import work.oaknet.multiroom.router.net.ClientManager;
@@ -12,6 +13,7 @@ public class Main {
 
     public static void main(String[] args){
         try {
+            new RadioPlayer();
             new AudioSourceManager();
             new ClientManager();
             new Webserver();

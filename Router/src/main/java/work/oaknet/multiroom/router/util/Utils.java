@@ -24,7 +24,7 @@ public class Utils {
 
     private static int[] convertByteArray(byte[] audioData, AudioFormat format, int byteOffset) {
 
-        if (format.getSampleSizeInBits() == 2) {
+        if (format.getSampleSizeInBits()/8 == 2) {
             int[] samples = new int[Math.min(audioData.length / 2, MAX_SIZE_RMS)];
             int offset = audioData.length - 2 * samples.length;
             for (int i = byteOffset; i < samples.length; i++) {
@@ -35,7 +35,7 @@ public class Utils {
                 }
             }
             return samples;
-        } else if (format.getSampleSizeInBits() == 1) {
+        } else if (format.getSampleSizeInBits()/8 == 1) {
             int[] samples = new int[Math.min(audioData.length, MAX_SIZE_RMS)];
             int offset = audioData.length - samples.length;
             for (int i = byteOffset; i < samples.length; i++) {
@@ -45,6 +45,56 @@ public class Utils {
         } else {
             throw new RuntimeException("unsupported frame size: " + format.getFrameSize());
         }
+    }
+
+    public static byte[] downsample(byte[] raw,
+                                     int srIn,
+                                     int srOut, boolean bigEndian) {
+
+
+        short[] samples = new short[raw.length / 2];
+        for (int i = 0; i < samples.length; i++) {
+            if (bigEndian) {
+                samples[i] = (short) ((raw[i * 2] << 8) | (raw[i * 2 + 1] & 0xFF));
+            } else {
+                samples[i] = (short) ((raw[i * 2 + 0] & 0xFF) | (raw[i * 2 + 1] << 8));
+            }
+        }
+
+        short[] temp = new short[samples.length];
+        int inSampleIndex = -1;
+        int outSampleIndex = 0;
+        int k = srOut;
+        boolean done = false;
+        while (!done) {
+            int sum = 0;
+            for (int i = 0; i < srIn; i++) {
+                if (k == srOut) {
+                    inSampleIndex++;
+                    if (inSampleIndex >= samples.length) {
+                        done = true;
+                        break;
+                    }
+                    k = 0;
+                }
+                sum += samples[inSampleIndex];
+                k++;
+            }
+            temp[outSampleIndex++] = (short) (sum / srIn);
+        }
+
+        byte[] result = new byte[outSampleIndex*2];
+        for (int i = 0; i < outSampleIndex; i++) {
+            if (bigEndian) {
+                result[i*2] = (byte) (temp[i] >> 8);
+                result[i*2+1] = (byte) (temp[i] & 0xFF);
+            } else {
+                result[i*2+1] = (byte) (temp[i] >> 8);
+                result[i*2] = (byte) (temp[i] & 0xFF);
+            }
+        }
+
+        return result;
     }
 
     public static byte[] longToBytes(long x) {

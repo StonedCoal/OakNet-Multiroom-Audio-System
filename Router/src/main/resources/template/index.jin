@@ -1,15 +1,16 @@
 <!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="description" content="">
-        <meta name="generator" content="Hugo 0.88.1">
-        <title>OakNet Audio</title>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="generator" content="Hugo 0.88.1">
+    <title>OakNet Audio</title>
 
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
 
-        <style>
+    <style>
         .bd-placeholder-img {
             font-size: 1.125rem;
             text-anchor: middle;
@@ -18,244 +19,209 @@
             user-select: none;
         }
 
-         @media (min-width: 768px) {
+        @media (min-width: 768px) {
             .bd-placeholder-img-lg {
                 font-size: 3.5rem;
             }
         }
-        </style>
-        <!-- Custom styles for this template -->
-        <link href="dashboard.css" rel="stylesheet">
-    </head>
-    <body>
-    
-    <header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
-        <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="#">OakNet Audio</a>
-        <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="navbar-nav">
-            <div class="nav-item text-nowrap">
-            </div>
-        </div>
-        </header>
+    </style>
+    <!-- Custom styles for this template -->
+    <link href="dashboard.css" rel="stylesheet">
+</head>
+<body>
 
-    <div class="container-fluid">
-        <div class="row">
-            <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
-                <div class="position-sticky pt-3">
-                    <ul class="nav nav-pills flex-column">
-                        <li class="nav-item">
-                            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#inputs"  aria-controls="inputs" href="#">
-                                Input Selection
-                            </button>
-                        </li>
-                        <li class="nav-item">
-                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#clients"  aria-controls="clients" href="#">
-                                Connected Clients
-                            </button>
-                        </li>
-                        <li class="nav-item">
-                           <button class="nav-link" data-bs-toggle="tab" data-bs-target="#radio"  aria-controls="radio" href="#">
-                                Radio
-                            </button>
-                        </li>
-                        <li class="nav-item">
-                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#player"  aria-controls="player" href="#">
-                                Music Player
-                            </button>
-                        </li>
-                        <li class="nav-item">
-                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#settings"  aria-controls="settings" href="#">
-                                Settings
-                            </button>
-                        </li>
-                    </ul>
-                </div>
-            </nav>
-
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-                <div class="tab-content d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <div class="tab-pane fade show active" id="inputs" role="tabpanel" style="width: 100%;">
-                        <div class="row mb-0">
-                            <div class="col">
-                                <h1 class="h2 ">Input Selection</h1>
-                            </div>
-                            <div class="col position-relative mb-0">
-                                <div class="position-absolute top-0 end-0 me-3 mb-0">
-                                    <button onClick="location.reload()" class="btn btn-primary">Refresh</button>
-                                </div>
-                            </div>
-                        </div>
-                        <hr>
-                        <div class="accordion" id="accordionInputs">
-                        {% for input, outputs in inputs.items() %}
-                            <div class="accordion-item" >
-                                <div class="accordion-header" id="heading-{{ input }}">
-                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ input }}" aria-expanded="false" aria-controls="collapse-{{ input }}">
-
-                                        <h6>Input ID: {{ input }}</h6>
-
-                                    </button>
-                                </div>
-                                <div id="collapse-{{ input }}" class="accordion-collapse collapse" aria-labelledby="heading-{{ input }}" data-bs-parent="#accordionInputs">
-                                    <div class="accordion-body">
-                                        <div class="progress mt-2">
-                                            <div class="progress-bar bg-primary" id="progress-{{ input }}" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
-                                        </div>
-                                        <br>
-                                        <div class="d-flex flex-wrap">
-                                            {% for output, active in outputs.items() %}
-                                            <div class="card m-1" style="width: 12rem;">
-                                                <div class="card-body text-center">
-                                                    <h5 class="card-title">Output:</h5>
-                                                    <h6 class="card-subtitle mb-2 text-muted">{{ output }}</h6>
-                                                    <span id="badge-{{ input }}-{{ output }}" class="badge bg-primary">Active</span>
-                                                    <br><br>
-                                                    <button id="toggle-{{ input }}-{{ output }}" href="#" class="btn btn-primary"  onclick="activate(this.id, '{{ input }}', '{{ output }}')">{% if active %}Deactivate{% else %}Activate{% endif %}</button>
-                                                </div>
-                                            </div>
-                                            {% endfor %}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        {% endfor %}
-                        </div>
-                    </div>
-
-                    <div class="tab-pane fade" id="clients" role="tabpanel" style="width: 100%;">
-                        <h1 class="h2">Connected Clients</h1>
-                        <hr>
-                        <div class="card" >
-                            <div class="card-body">
-                                <div class="row">
-                                        <div class="col ms-2 mt-3">
-                                            <h6>Active Streams:</h6>
-                                        </div>
-                                        <div class="col position-relative me-2">
-                                            <div class="input-group">
-                                                <input type="text" class="form-control" placeholder="Ip Address" id="static-address" aria-label="Input group example" aria-describedby="btnGroupAddon">
-                                                <button onclick="addStaticStream();" type="button" class="btn btn-primary">Add Static Stream</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                <ul class="list-group mt-2" id="client-list"></ul>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="tab-pane fade" id="player" role="tabpanel" style="width: 100%;">
-                         <div class="me-3">
-                            <iframe frameborder="0" scrolling="no" style="overflow:hidden;height:calc(100vh - 100px);width:100%" height="calc(100vh - 100px)" 
-                                width="100%" src="{{ config["network"]["playeraddress"]}}" title="MusicPlayer"></iframe>
-                        </div>
-                    </div>
-
-                    <div class="tab-pane fade" id="settings" role="tabpanel" style="width: 100%;">
-                        <div class="row mb-0">
-                            <div class="col">
-                                <h1 class="h2 ">Settings</h1>
-                            </div>
-                            <div class="col position-relative mb-0">
-                                <div class="position-absolute top-0 end-0 me-3 mb-0">
-                                    <button onClick="saveSettings()" class="btn btn-primary">Save Settings</button>
-                                </div>
-                            </div>
-                        </div>
-                        <hr>
-                        <h5>VBAN Settings:</h5>
-                        <label for="vbanPort" class="form-label">Port</label>
-                        <input type="text" id="vbanPort" class="form-control" aria-describedby="vbanPortHelpBlock" value="{{ config["network"]["port"] }}">
-                        <label for="inputStreamDevice" class="form-label">Stream In Output Device</label>
-                        <select id="inputStreamDevice" class="form-select" aria-label="inputDeviceSelection">
-                            {%for id, name in availableOutputs.items() %}
-                            <option value="{{ id }}" {% if id|string == config["audioBackend"]["selectedOutput"] %} selected {% endif %}>ID: {{ id }} - {{ name }}</option>
-                            {% endfor %}
-                        </select>
-                        <hr>
-                        <h5>Available Input Devices:</h5>
-                        <ul class="list-group mt-2">
-                        {% for id, desc in availableInputs.items() %}
-                            <li class="list-group-item" >
-                                <div class="row">
-                                    <div class="col">
-                                        <p><strong>Input Device ID: {{ id }} </strong>{{ desc }}</p>
-                                    </div>
-                                    <div class="col position-relative me-3">
-                                        <div class="input-group">
-                                            <input id="input-device-description-{{ id }}" type="text" class="form-control" placeholder="Description" aria-label="Recipient's username" value="{% if id|string in config["activeInputDevices"] %}{{ config["activeInputDevices"][id|string] }}{% endif %}" aria-describedby="basic-addon2">
-                                            <span class="input-group-text">Selectable</span>
-                                            <div class="input-group-text">
-                                                <input name="deviceCheckbox" class="form-check-input mt-0" type="checkbox" value="{{ id }}" {% if id|string in config["activeInputDevices"] %} checked {% endif %} aria-label="Checkbox for following text input">
-                                            </div>
-                                        </div>                                        
-                                    </div>
-                                </div>
-                            </li>
-                        {% endfor %}
-                        </ul>
-                        {% if false %}
-                        <hr>
-                        <h5>Radio Settings:</h5>
-                        <label for="radioDevice" class="form-label">Radio Output Device</label>
-                        <select id="radioDevice" class="form-select" aria-label="inputDeviceSelection">
-                            <option selected>Open this select menu</option>
-                            <option value="1">One</option>
-                            <option value="2">Two</option>
-                            <option value="3">Three</option>
-                        </select>
-
-                        <hr>
-                        <h5>Music Player Settings:</h5>
-                        <label for="musicStoragePath" class="form-label">Storage Path</label>
-                        <input type="text" id="musicStoragePath" class="form-control" aria-describedby="musicStoragePathHelpBlock">
-                        <label for="musicDevice" class="form-label">Music Player Output Device</label>
-                        <select id="musicDevice" class="form-select" aria-label="inputDeviceSelection">
-                            <option selected>Open this select menu</option>
-                            <option value="1">One</option>
-                            <option value="2">Two</option>
-                            <option value="3">Three</option>
-                        </select>
-
-                        <hr>
-                        <h5>Spotify Connect Settings:</h5>
-                        <label for="spotifyDevice" class="form-label">Spotify Connect Output Device</label>
-                        <select id="spotifyDevice" class="form-select" aria-label="spotifyDeviceSelection">
-                            <option selected>Open this select menu</option>
-                            <option value="1">One</option>
-                            <option value="2">Two</option>
-                            <option value="3">Three</option>
-                        </select>
-
-                        <hr>
-                        <h5>Airplay Settings:</h5>
-                        <label for="airplayDevice" class="form-label">Airplay Output Device</label>
-                        <select id="airplayDevice" class="form-select" aria-label="airplayDeviceSelection">
-                            <option selected>Open this select menu</option>
-                            <option value="1">One</option>
-                            <option value="2">Two</option>
-                            <option value="3">Three</option>
-                        </select>
-
-                        <hr>
-                        <h5>Upnp Settings:</h5>
-                        <label for="upnpDevice" class="form-label">upnpDevice Output Device</label>
-                        <select id="upnpDevice" class="form-select" aria-label="upnpDeviceSelection">
-                            <option selected>Not Implemented</option>
-                            <option value="1">One</option>
-                            <option value="2">Two</option>
-                            <option value="3">Three</option>
-                        </select>
-                        {% endif %}
-                    </div>
-                </div>
-            </main>
+<header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+    <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="#">OakNet Audio</a>
+    <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="collapse"
+            data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false"
+            aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="navbar-nav">
+        <div class="nav-item text-nowrap">
         </div>
     </div>
+</header>
 
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/feather-icons@4.28.0/dist/feather.min.js" integrity="sha384-uO3SXW5IuS1ZpFPKugNNWqTZRRglnUJK6UAZ/gxOX80nxEkN9NcGZTftn6RzhGWE" crossorigin="anonymous"></script><script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js" integrity="sha384-zNy6FEbO50N+Cg5wap8IKA4M/ZnLJgzc6w2NqACZaK0u0FXfOWRRJOnQtpZun8ha" crossorigin="anonymous"></script><script src="dashboard.js"></script>
-    </body>
+<div class="container-fluid">
+    <div class="row">
+        <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+            <div class="position-sticky pt-3">
+                <ul class="nav nav-pills flex-column">
+                    <li class="nav-item">
+                        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#inputs"
+                                aria-controls="inputs" href="#">
+                            Input Selection
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#clients" aria-controls="clients"
+                                href="#">
+                            Connected Clients
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#radio" aria-controls="radio"
+                                href="#">
+                            Radio
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#player" aria-controls="player"
+                                href="#">
+                            Music Player
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#settings"
+                                aria-controls="settings" href="#">
+                            Settings
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="tab-content d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <div class="tab-pane fade show active" id="inputs" role="tabpanel" style="width: 100%;">
+                    <div class="row mb-0">
+                        <div class="col">
+                            <h1 class="h2 ">Input Selection</h1>
+                        </div>
+                        <div class="col position-relative mb-0">
+                            <div class="position-absolute top-0 end-0 me-3 mb-0">
+                                <button onClick="location.reload()" class="btn btn-primary">Refresh</button>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="accordion" id="accordionInputs">
+                        {% for input, outputs in inputs.items() %}
+                        <div class="accordion-item">
+                            <div class="accordion-header" id="heading-{{ input }}">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#collapse-{{ input }}" aria-expanded="false"
+                                        aria-controls="collapse-{{ input }}">
+
+                                    <h6>Input ID: {{ input }}</h6>
+
+                                </button>
+                            </div>
+                            <div id="collapse-{{ input }}" class="accordion-collapse collapse"
+                                 aria-labelledby="heading-{{ input }}" data-bs-parent="#accordionInputs">
+                                <div class="accordion-body">
+                                    <div class="progress mt-2">
+                                        <div class="progress-bar bg-primary" id="progress-{{ input }}"
+                                             role="progressbar" aria-valuenow="25" aria-valuemin="0"
+                                             aria-valuemax="100"></div>
+                                    </div>
+                                    <br>
+                                    <div class="d-flex flex-wrap">
+                                        {% for output, active in outputs.items() %}
+                                        <div class="card m-1" style="width: 12rem;">
+                                            <div class="card-body text-center">
+                                                <h5 class="card-title">Output:</h5>
+                                                <h6 class="card-subtitle mb-2 text-muted">{{ output }}</h6>
+                                                <span id="badge-{{ input }}-{{ output }}" class="badge bg-primary">Active</span>
+                                                <br><br>
+                                                <button id="toggle-{{ input }}-{{ output }}" href="#"
+                                                        class="btn btn-primary"
+                                                        onclick="activate(this.id, '{{ input }}', '{{ output }}')">{% if active %}Deactivate{% else %}Activate{% endif %}</button>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="clients" role="tabpanel" style="width: 100%;">
+                    <h1 class="h2">Connected Clients</h1>
+                    <hr>
+                    <div class="card">
+                        <div class="card-body">
+                            <h6>Active Clients:</h6>
+                            <ul class="list-group mt-2" id="client-list">
+                                {% for output, currentlyPlaying in outputs.items() %}
+                                <li class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div class="ms-2 me-auto">
+                                            {{ output }}
+                                        </div>
+                                        <div id="{{ output }}-currentlyPlaying">Currently Playing: {{ currentlyPlaying }}</div>
+                                    </div>
+
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="radio" role="tabpanel" style="width: 100%;">
+                    <h1 class="h2">Radio Player</h1>
+                    <hr>
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col ms-2 mt-3">
+                                    <h6>Available Stations:</h6>
+                                </div>
+                            </div>
+                            <ul class="list-group mt-2" id="radio-list">
+                                {% for stationName, url in radioStations.items() %}
+                                <li class="list-group-item d-flex justify-content-between align-items-start">
+                                    <div class="ms-2 me-auto">
+                                        {{ stationName }}
+                                    </div>
+                                    <button class="btn btn-primary me-2" onclick="playStation('{{url}}');">
+                                        play
+                                    </button>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="player" role="tabpanel" style="width: 100%;">
+                    <div class="me-3">
+
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="settings" role="tabpanel" style="width: 100%;">
+                    <div class="row mb-0">
+                        <div class="col">
+                            <h1 class="h2 ">Settings</h1>
+                        </div>
+                        <div class="col position-relative mb-0">
+                            <div class="position-absolute top-0 end-0 me-3 mb-0">
+                                <button onClick="saveSettings()" class="btn btn-primary">Save Settings</button>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/feather-icons@4.28.0/dist/feather.min.js"
+        integrity="sha384-uO3SXW5IuS1ZpFPKugNNWqTZRRglnUJK6UAZ/gxOX80nxEkN9NcGZTftn6RzhGWE"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"
+        integrity="sha384-zNy6FEbO50N+Cg5wap8IKA4M/ZnLJgzc6w2NqACZaK0u0FXfOWRRJOnQtpZun8ha"
+        crossorigin="anonymous"></script>
+<script src="dashboard.js"></script>
+</body>
 </html>

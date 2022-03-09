@@ -77,4 +77,16 @@ public class SpotifyAudioSource extends AudioSource {
         }
 
     }
+
+    @Override
+    public void addAudioData(byte[] frame) {
+        super.addAudioData(frame);
+        while(buf.size() > Constants.PACKET_SIZE * 4 ){
+            try {
+                Thread.sleep(2);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }

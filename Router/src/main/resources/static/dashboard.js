@@ -23,6 +23,9 @@ function onActivationEvent(payload){
       }
     }
   }
+  let currentlyPlaying = payload.input.name==="NOTHINGTOSEEHERELOLXD_JUSTALONGSTRINGWITHMORETHAN32CHARACTERSTOPREVENTACCIDENTIALBLOCKING"?"Nothing":payload.input.name;
+  document.getElementById(payload.output.name + "-currentlyPlaying").innerHTML="Currently Playing: " + currentlyPlaying;
+
 }
 
 function onNotifyEvent(){
@@ -63,6 +66,17 @@ socket.onmessage = function (event) {
       onNotifyEvent();
       break;
   }
+}
+
+function playStation(url){
+  let payload = {
+    command:"playStation",
+    data: JSON.stringify({
+      url: url
+    })
+  };
+  checkSocket();
+  socket.send(JSON.stringify(payload));
 }
 
   function activate(id, input, output){

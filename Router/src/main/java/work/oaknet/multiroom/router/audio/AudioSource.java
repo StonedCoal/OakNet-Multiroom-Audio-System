@@ -32,18 +32,12 @@ public class AudioSource {
     static final int TIME_PER_PACKET_IN_NS = (int) (1000000000 / (Constants.SAMPLERATE/(double)Constants.FRAMES_PER_PACKET));
 
 
-    //Blocks if to much data is accepted
     public void addAudioData(byte[] frame) {
         synchronized (buf) {
+            if(buf.size()> 1024*1024)
+                buf.clear();
             for (byte data : frame) {
                 buf.add(data);
-            }
-        }
-        while(buf.size() > Constants.PACKET_SIZE * 4 ){
-            try {
-                Thread.sleep(2);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
             }
         }
     }
@@ -64,34 +58,29 @@ public class AudioSource {
             while (!Thread.interrupted()) {
                 if(actualTime == 0)
                     actualTime = System.nanoTime();
-                int sendPackets = 0;
-                while (timeSpan > TIME_PER_PACKET_IN_NS){
-                    byte[] data = new byte[Constants.PACKET_SIZE + 8];
-                    if (buf.size() >= Constants.PACKET_SIZE) {
-                        synchronized (buf) {
-                            for (int i = 0; i < Constants.PACKET_SIZE; i++) {
-                                data[i + 8] = buf.peekFirst() != null ? buf.pollFirst() : 0;
-                            }
-                        }
-                    }else{
+
+                byte[] data = new byte[Constants.PACKET_SIZE + 8];
+                if (buf.size() >= Constants.PACKET_SIZE) {
+                    synchronized (buf) {
                         for (int i = 0; i < Constants.PACKET_SIZE; i++) {
-                            data[i + 8] = (byte) 0x00;
+                            data[i + 8] = buf.peekFirst() != null ? buf.pollFirst() : 0;
                         }
                     }
-                    System.arraycopy(Utils.longToBytes(frameCount++), 0, data, 0, 8);
-                    // check if Client is still connected
-                    activeClients.removeIf((client) -> !ClientManager.getInstance().getConnectedOutClients().contains(client));
-                    synchronized (activeClients){
-                        for (var client : activeClients) {
-                            Communicator.getInstance().sendData(data, client);
-                        }
+                }else{
+                    for (int i = 0; i < Constants.PACKET_SIZE; i++) {
+                        data[i + 8] = (byte) 0x00;
                     }
-                    timeSpan-=TIME_PER_PACKET_IN_NS;
-
-                    sendPackets++;
-                    currentAudioLevel=(int) Utils.getRMS(Arrays.copyOfRange(data, 0, 64*Constants.CHANNELS*Constants.BYTES_PER_SAMPLE), Constants.STANDARD_FORMAT, 0);
-
                 }
+                System.arraycopy(Utils.longToBytes(frameCount++), 0, data, 0, 8);
+                // check if Client is still connected
+                activeClients.removeIf((client) -> !ClientManager.getInstance().getConnectedOutClients().contains(client));
+                synchronized (activeClients){
+                    for (var client : activeClients) {
+                        Communicator.getInstance().sendData(data, client);
+                    }
+                }
+                timeSpan-=TIME_PER_PACKET_IN_NS;
+                currentAudioLevel=(int) Utils.getRMS(Arrays.copyOfRange(data, 0, 64*Constants.CHANNELS*Constants.BYTES_PER_SAMPLE), Constants.STANDARD_FORMAT, 0);
                 try {
                     var sleeptime = TIME_PER_PACKET_IN_NS - (System.nanoTime() - actualTime) - timeSpan;
                     if(sleeptime > 0)

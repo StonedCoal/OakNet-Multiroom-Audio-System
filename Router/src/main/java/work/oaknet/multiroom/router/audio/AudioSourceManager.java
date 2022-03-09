@@ -35,7 +35,7 @@ public class AudioSourceManager {
         sources.add(spotifyAudioSource);
         sources.add(radioAudioSource);
         //radioAudioSource.stream("https://liveradio.swr.de/sw282p3/dasding/play.mp3");
-        radioAudioSource.stream("https://dispatcher.rndfnk.com/br/br3/live/mp3/mid");
+        //radioAudioSource.stream("https://dispatcher.rndfnk.com/br/br3/live/mp3/mid");
         var audioInfoThread = new Thread(()->{
             while(!Thread.interrupted()){
                 var inputs = new ArrayList<Input>();

@@ -11,6 +11,7 @@ import work.oaknet.multiroom.router.audio.AudioSourceManager;
 import work.oaknet.multiroom.router.net.ClientManager;
 import work.oaknet.multiroom.router.web.entities.Audio.ActivationPayload;
 import work.oaknet.multiroom.router.web.entities.Command;
+import work.oaknet.multiroom.router.web.entities.radio.PlayStationPayload;
 
 import java.io.IOException;
 import java.util.Queue;
@@ -61,6 +62,14 @@ public class Websocket {
                     if(output == null)
                         return;
                     AudioSourceManager.getInstance().setActiveSourceForClient(null, output);
+                } catch (JsonProcessingException e) {
+                    e.printStackTrace();
+                }
+            }
+            case "playStation" ->{
+                try {
+                    PlayStationPayload payload = mapper.readValue(command.getData(), PlayStationPayload.class);
+                    RadioPlayer.getInstance().play(payload.getUrl());
                 } catch (JsonProcessingException e) {
                     e.printStackTrace();
                 }
