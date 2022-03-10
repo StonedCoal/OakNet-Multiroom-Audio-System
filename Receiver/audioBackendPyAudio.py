@@ -7,6 +7,9 @@ from datetime import timedelta,  datetime
 import asyncio
 
 import pyaudio
+
+import numpy
+
 p = pyaudio.PyAudio()
 info = p.get_host_api_info_by_index(0)
 numdevices = info.get('deviceCount')
@@ -35,8 +38,10 @@ bufferTightCyclus = 850
 lastTimestamp=0
 frameBufferSizeMultiplicator = 1
 bufferSizeMedian = list()
+maxVolume = 100
+volume = 100
 
-isInitialized = False;
+isInitialized = False
 
 framesPerBuffer = (network.packetSize/4)*frameBufferSizeMultiplicator
 
@@ -48,12 +53,26 @@ def getAvailableOutputDevices():
     return availableOutputDevices
 
 def setConfig(config):
-    global bufferGoal, bufferRange, bufferRangeTight, frameBufferSizeMultiplicator, framesPerBuffer
+    global bufferGoal, bufferRange, bufferRangeTight, frameBufferSizeMultiplicator, framesPerBuffer, maxVolume
     bufferGoal = config["audioBackend"]["bufferGoal"]
     bufferRange = config["audioBackend"]["bufferRange"]
     bufferRangeTight = config["audioBackend"]["bufferRangeTight"]
     frameBufferSizeMultiplicator = config["audioBackend"]["frameBufferSizeMultiplicator"]
+    maxVolume = config["audioBackend"]["maxVolume"]
     framesPerBuffer = (network.packetSize/4)*frameBufferSizeMultiplicator
+    
+def changeVolume(chunkRaw, volume):
+    global maxVolume
+    volumeNormalized = (maxVolume/100.0)*volume
+    sound_level = (volumeNormalized / 100.0)
+
+    dt = numpy.dtype(numpy.int16)
+    dt = dt.newbyteorder("<")
+    chunkNumpy = numpy.frombuffer(chunkRaw, dtype=dt)
+    chunkNumpy = chunkNumpy * sound_level
+    chunkNumpy = chunkNumpy.astype(dt)
+    return chunkNumpy.tobytes()
+
 
 async def send(data):
     network.sendBatch(data)
@@ -76,7 +95,7 @@ def addInputDevice(inDeviceId):
     stream.start_stream()
 
 def outCallback(inData, frame_count, time_info, status):
-    global isBuffering, isInitialized, bufferRange, bufferRangeTight, bufferTightCyclus, lastTimestamp, bufferSizeMedian
+    global isBuffering, isInitialized, bufferRange, bufferRangeTight, bufferTightCyclus, lastTimestamp, bufferSizeMedian, volume
     bufferSizeMedian.append(len(buffer))
     if(not isInitialized):
         if(len(buffer) < bufferGoal):
@@ -120,6 +139,9 @@ def outCallback(inData, frame_count, time_info, status):
     buildBuffer=buffer.pop(0)
     for i in range(0, frameBufferSizeMultiplicator-1):
         buildBuffer= buildBuffer+buffer.pop(0)
+    
+    buildBuffer = changeVolume(buildBuffer, volume)
+    
     return buildBuffer, pyaudio.paContinue
 
 inStream=None

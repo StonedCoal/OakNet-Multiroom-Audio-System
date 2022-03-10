@@ -34,6 +34,8 @@ def createDefaultConfig():
             "bufferRange": 15,
             "bufferRangeTight": 5,
             "frameBufferSizeMultiplicator": 1,
+            "maxVolume":"100",
+            "availableAudioDevices": audioBackend.availableOutputDevices,
             "inDeviceId": -1
         },
     }

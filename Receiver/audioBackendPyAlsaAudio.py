@@ -6,6 +6,7 @@ import datetime
 import network
 from datetime import timedelta,  datetime
 import asyncio
+import numpy
 
 activeInputDevice = 5
 peaks = dict()
@@ -18,6 +19,8 @@ bufferTightCyclus = 850
 bufferMedian = list()
 lastTimestamp = 0
 frameBufferSizeMultiplicator = 1
+maxVolume = 100
+volume = 100
 
 isInitialized = False
 
@@ -47,12 +50,24 @@ def getAvailableOutputDevices():
     return availableOutputDevices
 
 def setConfig(config):
-    global bufferGoal, bufferRange, bufferRangeTight, frameBufferSizeMultiplicator, framesPerBuffer
+    global bufferGoal, bufferRange, bufferRangeTight, frameBufferSizeMultiplicator, framesPerBuffer, maxVolume
     bufferGoal = config["audioBackend"]["bufferGoal"]
     bufferRange = config["audioBackend"]["bufferRange"]
     bufferRangeTight = config["audioBackend"]["bufferRangeTight"]
     frameBufferSizeMultiplicator = config["audioBackend"]["frameBufferSizeMultiplicator"]
+    maxVolume = config["audioBackend"]["maxVolume"]
     framesPerBuffer = int((network.packetSize/4)*frameBufferSizeMultiplicator)
+
+def changeVolume(chunkRaw, volume):
+    volumeNormalized = (maxVolume/100.)*volume
+    sound_level = (volumeNormalized / 100.)
+
+    dt = numpy.dtype(numpy.int16)
+    dt = dt.newbyteorder("<")
+    chunkNumpy = numpy.frombuffer(chunkRaw, dtype=dt)
+    chunkNumpy = chunkNumpy * sound_level
+    chunkNumpy = chunkNumpy.astype(dt)
+    return chunkNumpy.tobytes()
 
 def addInputDevice(inDeviceId):
     # set up audio input
@@ -87,7 +102,7 @@ def setOutputDevice(outDeviceId):
     player.setperiodsize(framesPerBuffer)
     def audioFunc():
         while run:
-            global isBuffering, isInitialized, bufferRange, bufferRangeTight, bufferTightCyclus, bufferMedian, lastTimestamp
+            global isBuffering, isInitialized, bufferRange, bufferRangeTight, bufferTightCyclus, bufferMedian, lastTimestamp, volume
             if(not isInitialized):
                 if(len(buffer) < bufferGoal):
                     player.write(b'\x00'*(network.packetSize*frameBufferSizeMultiplicator))
@@ -117,7 +132,6 @@ def setOutputDevice(outDeviceId):
                     player.write(b'\x00'*(network.packetSize*frameBufferSizeMultiplicator))
                     continue
                 
-                
             else:
                 lastTimestamp=lastTimestamp+1
             if(len(buffer) < bufferGoal - bufferRange):
@@ -137,8 +151,13 @@ def setOutputDevice(outDeviceId):
             buildBuffer=buffer.pop(0)
             for i in range(0, frameBufferSizeMultiplicator-1):
                 buildBuffer= buildBuffer+buffer.pop(0)
+                
+            changeVolume(buildBuffer, volume)
+            
             player.write(buildBuffer)
     
     run=True
     outAudioThread = threading.Thread(target=audioFunc, daemon=True)
     outAudioThread.start()
+
+
