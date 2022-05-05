@@ -129,7 +129,7 @@ def setOutputDevice(outDeviceId):
                 sum = 0
                 for value in bufferMedian:
                     sum = sum + value;
-                bufferMedianValue = sum / len(bufferMedian)
+                bufferMedianValue = int(sum / len(bufferMedian))
                 bufferMedian.clear()
                 divisor = abs(bufferMedianValue-bufferGoal) - bufferRangeTight
                 if(divisor < 1):
