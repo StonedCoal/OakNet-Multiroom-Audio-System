@@ -8,6 +8,7 @@ import work.oaknet.multiroom.router.net.Communicator;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -55,25 +56,34 @@ public class AudioSource {
     public AudioSource(String name){
         this.name = name;
         audioThread = new Thread(() ->{
+            var magicPostBytes = Constants.MAGICPOST.getBytes(StandardCharsets.US_ASCII);
+            var magicPostBytesLength = magicPostBytes.length;
             while (!Thread.interrupted()) {
                 if(actualTime == 0)
                     actualTime = System.nanoTime();
 
-                byte[] data = new byte[Constants.PACKET_SIZE + 8];
+                byte[] data = new byte[Constants.PACKET_SIZE + 8 + magicPostBytesLength + 32];
                 if (buf.size() >= Constants.PACKET_SIZE) {
                     synchronized (buf) {
                         for (int i = 0; i < Constants.PACKET_SIZE; i++) {
-                            data[i + 8] = buf.peekFirst() != null ? buf.pollFirst() : 0;
+                            data[i + 8 + magicPostBytesLength + 32] = buf.peekFirst() != null ? buf.pollFirst() : 0;
                         }
                     }
                 }else{
                     for (int i = 0; i < Constants.PACKET_SIZE; i++) {
-                        data[i + 8] = (byte) 0x00;
+                        data[i + 8 + magicPostBytesLength + 32] = (byte) 0x00;
                     }
                 }
-                System.arraycopy(Utils.longToBytes(frameCount++), 0, data, 0, 8);
+                System.arraycopy(magicPostBytes, 0, data, 0, magicPostBytesLength);
+                var nameBytes = name.getBytes();
+                var bytesToCopy = nameBytes.length;
+                if(bytesToCopy > 32)
+                    bytesToCopy = 32;
+                System.arraycopy(nameBytes, 0, data, magicPostBytesLength, bytesToCopy);
+                System.arraycopy(Utils.longToBytes(frameCount++), 0, data, magicPostBytesLength + 32, 8);
                 // check if Client is still connected
                 activeClients.removeIf((client) -> !ClientManager.getInstance().getConnectedOutClients().contains(client));
+
                 synchronized (activeClients){
                     for (var client : activeClients) {
                         Communicator.getInstance().sendData(data, client);

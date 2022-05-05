@@ -112,3 +112,7 @@ function playStation(url){
       socket.send(JSON.stringify(payload));
     }
   }
+
+  function volumeChanged(element, output){
+    let value = element.value;
+  }

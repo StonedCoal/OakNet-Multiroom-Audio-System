@@ -149,12 +149,15 @@
                                 {% for output, currentlyPlaying in outputs.items() %}
                                 <li class="list-group-item">
                                     <div class="d-flex justify-content-between align-items-start">
-                                        <div class="ms-2 me-auto">
+                                        <div class="fw-bold ms-2 me-auto">
                                             {{ output }}
                                         </div>
                                         <div id="{{ output }}-currentlyPlaying">Currently Playing: {{ currentlyPlaying }}</div>
                                     </div>
-
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <label for="volume-{{ output }}" class="form-label ms-2" id="{{ output }}-volume-label">Volume</label>
+                                        <input type="range" class="form-range ms-2" oninput="volumeChanged(this, '{{ output }}')" id="{{ output }}-volume-slider">
+                                    </div>
                                 </li>
                                 {% endfor %}
                             </ul>
@@ -189,9 +192,11 @@
                 </div>
 
                 <div class="tab-pane fade" id="player" role="tabpanel" style="width: 100%;">
-                    <div class="me-3">
-
-                    </div>
+                    <h1 class="h2">Radio Player</h1>
+                    <hr>
+                    Coming soon...
+                    <br>
+                    <hr>
                 </div>
 
                 <div class="tab-pane fade" id="settings" role="tabpanel" style="width: 100%;">

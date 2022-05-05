@@ -58,7 +58,7 @@ public class ClientManager {
         managementThread.start();
     }
 
-    public Client tickOutClient(InetAddress ip, int port, String name){
+    public Client tickOutClient(InetAddress ip, int port, String name, byte currentVolume, byte maxVolume, short currentBufferSize, short bufferGoal){
         Client result = null;
         synchronized (connectedOutClients){
             for (var client:connectedOutClients) {
@@ -76,6 +76,11 @@ public class ClientManager {
                 notifyWebserverChange();
             }
             result.lastTimeStamp = System.currentTimeMillis();
+            result.currentVolume = currentVolume;
+            result.maxVolume = maxVolume;
+            result.currentBufferSize = currentBufferSize;
+            result.desiredBufferSize = bufferGoal;
+            System.out.println("Updated Client: " + result.name +", Volume: "+ currentVolume + "/" + maxVolume + ", Buffer: " + currentBufferSize + "/" + bufferGoal);
         }
         return result;
     }

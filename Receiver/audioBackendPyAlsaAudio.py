@@ -17,6 +17,7 @@ bufferRange = 5
 bufferRangeTight = 3
 bufferTightCyclus = 850
 bufferMedian = list()
+bufferMedianValue = 0
 lastTimestamp = 0
 frameBufferSizeMultiplicator = 1
 maxVolume = 100
@@ -48,6 +49,15 @@ def getAvailableInputDevices():
 
 def getAvailableOutputDevices():
     return availableOutputDevices
+
+def getCurrentBufferSize():
+    return bufferMedianValue
+
+def getVolume():
+    return volume
+
+def setVolume(value):
+    volume = value
 
 def setConfig(config):
     global bufferGoal, bufferRange, bufferRangeTight, frameBufferSizeMultiplicator, framesPerBuffer, maxVolume
@@ -102,7 +112,7 @@ def setOutputDevice(outDeviceId):
     player.setperiodsize(framesPerBuffer)
     def audioFunc():
         while run:
-            global isBuffering, isInitialized, bufferRange, bufferRangeTight, bufferTightCyclus, bufferMedian, lastTimestamp, volume
+            global isBuffering, isInitialized, bufferRange, bufferRangeTight, bufferTightCyclus, bufferMedian, bufferMedianValue, lastTimestamp, volume
             if(not isInitialized):
                 if(len(buffer) < bufferGoal):
                     player.write(b'\x00'*(network.packetSize*frameBufferSizeMultiplicator))
@@ -119,16 +129,16 @@ def setOutputDevice(outDeviceId):
                 sum = 0
                 for value in bufferMedian:
                     sum = sum + value;
-                median = sum / len(bufferMedian)
+                bufferMedianValue = sum / len(bufferMedian)
                 bufferMedian.clear()
-                divisor = abs(median-bufferGoal) - bufferRangeTight
+                divisor = abs(bufferMedianValue-bufferGoal) - bufferRangeTight
                 if(divisor < 1):
                     divisor = 1
                 lastTimestamp = bufferTightCyclus / divisor
                 
-                if(median>bufferGoal+bufferRangeTight):
+                if(bufferMedianValue>bufferGoal+bufferRangeTight):
                     buffer.pop(0)
-                elif(median<bufferGoal-bufferRangeTight):
+                elif(bufferMedianValue<bufferGoal-bufferRangeTight):
                     player.write(b'\x00'*(network.packetSize*frameBufferSizeMultiplicator))
                     continue
                 

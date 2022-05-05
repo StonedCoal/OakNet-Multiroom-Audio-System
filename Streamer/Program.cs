@@ -73,7 +73,8 @@ while (true)
         // get the next packet from the prepared list
         var packet = packets[(int)(packetCounter % packets.Count)];
         // copy the PacketID into the packet
-        Buffer.BlockCopy(BitConverter.GetBytes(packetCounter++), 0, packet, 11 + 32, 8);
+        // Note: Network uses Big Endian so we need to reverse the byteorder of the counter
+        Buffer.BlockCopy(BitConverter.GetBytes(packetCounter++).Reverse().ToArray(), 0, packet, 11 + 32, 8);
         // send the packet to the router
         socket.Send(packet, address, port);
         // subtract one packet-time from the overall packet timer

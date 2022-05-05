@@ -38,6 +38,7 @@ bufferTightCyclus = 850
 lastTimestamp=0
 frameBufferSizeMultiplicator = 1
 bufferSizeMedian = list()
+bufferSizeMedianValue = 0
 maxVolume = 100
 volume = 100
 
@@ -51,6 +52,15 @@ def getAvailableInputDevices():
 
 def getAvailableOutputDevices():
     return availableOutputDevices
+
+def getCurrentBufferSize():
+    return bufferSizeMedianValue
+
+def getVolume():
+    return volume
+
+def setVolume(value):
+    volume = value
 
 def setConfig(config):
     global bufferGoal, bufferRange, bufferRangeTight, frameBufferSizeMultiplicator, framesPerBuffer, maxVolume
@@ -95,7 +105,7 @@ def addInputDevice(inDeviceId):
     stream.start_stream()
 
 def outCallback(inData, frame_count, time_info, status):
-    global isBuffering, isInitialized, bufferRange, bufferRangeTight, bufferTightCyclus, lastTimestamp, bufferSizeMedian, volume
+    global isBuffering, isInitialized, bufferRange, bufferRangeTight, bufferTightCyclus, lastTimestamp, bufferSizeMedian, bufferSizeMedianValue, volume
     bufferSizeMedian.append(len(buffer))
     if(not isInitialized):
         if(len(buffer) < bufferGoal):
@@ -107,19 +117,21 @@ def outCallback(inData, frame_count, time_info, status):
         isInitialized = False
     
     if(lastTimestamp<=0):
-        print("Current Buffer Size: " + str(len(buffer)) + " | Goal: " + str(bufferGoal))
         sum = 0
         for value in bufferSizeMedian:
             sum = sum + value;
-        median = sum / len(bufferSizeMedian)
+        bufferSizeMedianValue = int(sum / len(bufferSizeMedian))
+        print("Current Buffer Size: " + str(bufferSizeMedianValue) + " | Goal: " + str(bufferGoal) + " | Tight Range: " + str(bufferRangeTight))
         bufferSizeMedian.clear()
-        divisor = abs(median-bufferGoal) - bufferRangeTight
+        divisor = abs(bufferSizeMedianValue-bufferGoal) - bufferRangeTight
         if(divisor < 1):
             divisor = 1
         lastTimestamp = bufferTightCyclus / divisor
-        if(median>bufferGoal+bufferRangeTight):
+        if(bufferSizeMedianValue>bufferGoal+bufferRangeTight):
             buffer.pop(0)
-        elif(median<bufferGoal-bufferRangeTight):
+            print("Tight Adjustment removed a Frame")
+        elif(bufferSizeMedianValue<bufferGoal-bufferRangeTight):
+            print("Tight Adjustment added a Frame")
             return b'\x00'*(network.packetSize*frameBufferSizeMultiplicator), pyaudio.paContinue
        
     else:
@@ -157,4 +169,5 @@ def setOutputDevice(outDeviceId):
         inStream.close()
 
     inStream = p.open(format = p.get_format_from_width(2), channels = 2, rate = 44100, output = True, output_device_index=outDeviceId, stream_callback=outCallback, frames_per_buffer=int(framesPerBuffer))
+    print("Starting Audio Stream on Device: "+ str(outDeviceId))
     inStream.start_stream()

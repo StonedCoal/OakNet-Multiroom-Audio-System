@@ -10,4 +10,9 @@ public class Client {
     public int port;
     public long frameCounter = 0;
     public long lastTimeStamp;
+
+    public int currentBufferSize;
+    public int desiredBufferSize;
+    public int currentVolume;
+    public int maxVolume;
 }

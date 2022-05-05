@@ -9,11 +9,12 @@ if(platform.system() == "Linux"):
     import audioBackendPyAlsaAudio as audioBackend
 else:
     import audioBackendPyAudio as audioBackend
+import config
 
 
 connectedClients = list()
 socket = None
-frameCounterOut = 0
+#frameCounterOut = 0
 frameCounterIn = 0
 
 
@@ -29,19 +30,26 @@ def setSocket(socketIn):
     global socket
     socket = socketIn
 
-def sendBatch(data):
-    global socket, frameCounterOut
-    elapsed = time.perf_counter()
-    for i in range(0, int(len(data)/packetSize)):
-        packet = bytearray() + struct.pack("<Q", frameCounterOut) + data[i*packetSize:i*packetSize+packetSize]
-        frameCounterOut = frameCounterOut+1
-        for addr in connectedClients:
-            socket.sendto(packet, addr)
+#def sendBatch(data):
+#    global socket, frameCounterOut
+#    elapsed = time.perf_counter()
+#    for i in range(0, int(len(data)/packetSize)):
+#        packet = bytearray() + struct.pack(">Q", frameCounterOut) + data[i*packetSize:i*packetSize+packetSize]
+#        frameCounterOut = frameCounterOut+1
+#        for addr in connectedClients:
+#            socket.sendto(packet, addr)
 
 
-def sendHandshake(peer, clientName):
+def sendHandshake():
     global socket
-    socket.sendto(b"GIMMESTREAM"+ clientName.encode("ASCII")+ ((32-len(clientName))*b"\0"), peer)
+    clientName = config.getConfig()["network"]["clientName"]
+    peer = (config.getConfig()["network"]["broadcastAddress"], config.getConfig()["network"]["port"])
+    socket.sendto(b"GIMMESTREAM"+ clientName.encode("ASCII") +
+                  ((32-len(clientName))*b"\0") +
+                  struct.pack("!B", audioBackend.getVolume()) +
+                  struct.pack("!B", audioBackend.maxVolume) +
+                  struct.pack("!H", audioBackend.getCurrentBufferSize()) +
+                  struct.pack("!H", audioBackend.bufferGoal), peer)
 
 
 def receiveOnce():
@@ -51,10 +59,27 @@ def receiveOnce():
         data, addr = socket.recvfrom(2048)
     except:
         return (None, None)
-    if(data == b"GIMMESTREAM"):
-        return addr
+    message = data[:11]
+    if(message == b"IMTHEROUTER"):
+        return (None, None)
+    if(message == b"GIMMESTREAM"):
+        return (None, None)
+    if(message == b"TAKECOMMAND"):
+        data = data[11:]
+        command = data[12:]
+        if(command == b"CHANGEVOLUME"):
+            newVolume = data[12]
+            audioBackend.setVolume()
+        elif(command ==b"CHANGEBUFFER"):
+            audioBackend
+        return (None, None)
+    if(not(message == b"TAKIESTREAM")):
+        return (None, None)
+    data = data [11:]
+    name = data[:32]
+    data = data[32:]
     rawPcm = data[8:] 
-    currentFrameCount = struct.unpack("<Q", data[:8])[0]
+    currentFrameCount = struct.unpack("!Q", data[:8])[0]
     if(frameCounterIn-currentFrameCount>5):
         frameCounterIn= currentFrameCount-1
     # Out of order Frame
