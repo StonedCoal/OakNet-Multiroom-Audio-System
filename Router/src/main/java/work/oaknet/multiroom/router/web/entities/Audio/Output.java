@@ -1,13 +1,7 @@
 package work.oaknet.multiroom.router.web.entities.Audio;
 
+import manifold.ext.props.rt.api.var;
+
 public class Output {
-    private String name;
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
+   @var String name;
 }

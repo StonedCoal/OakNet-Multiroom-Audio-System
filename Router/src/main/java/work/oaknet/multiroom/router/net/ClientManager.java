@@ -1,7 +1,11 @@
 package work.oaknet.multiroom.router.net;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import work.oaknet.multiroom.router.audio.AudioSourceManager;
 import work.oaknet.multiroom.router.web.Webserver;
+import work.oaknet.multiroom.router.web.Websocket;
+import work.oaknet.multiroom.router.web.entities.Audio.Input;
+import work.oaknet.multiroom.router.web.entities.Audio.Output;
 import work.oaknet.multiroom.router.web.entities.Command;
 
 import java.io.IOException;
@@ -35,16 +39,38 @@ public class ClientManager {
             try {
                 while (true) {
                     synchronized (connectedInClients) {
-                        var sizeBefore = connectedInClients.size();
-                        connectedInClients.removeIf((client)->System.currentTimeMillis() - client.lastTimeStamp >3000);
-                        if(connectedInClients.size() - sizeBefore != 0)
-                            notifyWebserverChange();
+                        var outdatedClients = connectedInClients.stream().filter((client)->System.currentTimeMillis() - client.lastTimeStamp >3000).toList();
+                        for (var client:outdatedClients) {
+                            connectedInClients.remove(client);
+                            AudioSourceManager.getInstance().sources.removeIf((source) -> source.getName().equals(client.name));
+
+                            // WEBSERVER COMMAND
+                            var mapper = new ObjectMapper();
+                            var inputEntity = new Input();
+                            inputEntity.name = client.name;
+                            var command = new Command();
+                            command.command = "removeInputEvent";
+                            command.data = mapper.writeValueAsString(inputEntity);
+                            Webserver.instance.socket.notifyClients(command);
+                        }
                     }
                     synchronized (connectedOutClients) {
-                        var sizeBefore = connectedOutClients.size();
-                        connectedOutClients.removeIf((client)->System.currentTimeMillis() - client.lastTimeStamp >3000);
-                        if(connectedOutClients.size() - sizeBefore != 0)
-                            notifyWebserverChange();
+                        var outdatedClients = connectedOutClients.stream().filter((client)->System.currentTimeMillis() - client.lastTimeStamp >3000).toList();
+                        for (var client:outdatedClients) {
+                            connectedOutClients.remove(client);
+                            AudioSourceManager.getInstance().sources.forEach((source) ->
+                                    source.activeClients.removeIf((otherClient) ->
+                                            otherClient.name.equals(client.name)));
+
+                            // WEBSERVER COMMAND
+                            var mapper = new ObjectMapper();
+                            var outputEntity = new Output();
+                            outputEntity.name = client.name;
+                            var command = new Command();
+                            command.command = "removeOutputEvent";
+                            command.data = mapper.writeValueAsString(outputEntity);
+                            Webserver.instance.socket.notifyClients(command);
+                        }
                     }
                     Thread.sleep(1000);
                 }
@@ -73,7 +99,17 @@ public class ClientManager {
                 result.port = port;
                 result.name = name;
                 connectedOutClients.add(result);
-                notifyWebserverChange();
+
+                // WEBSERVER COMMAND
+                var mapper = new ObjectMapper();
+                var outputEntity = new Output();
+                outputEntity.name = result.name;
+
+                var addOutputCommand = new Command();
+                addOutputCommand.command = "newOutputEvent";
+                addOutputCommand.data = mapper.writeValueAsString(outputEntity);
+                Webserver.instance.socket.notifyClients(addOutputCommand);
+
             }
             result.lastTimeStamp = System.currentTimeMillis();
             result.currentVolume = currentVolume;
@@ -99,21 +135,21 @@ public class ClientManager {
                 result.port = port;
                 result.name = name;
                 connectedInClients.add(result);
-                notifyWebserverChange();
+
+                // WEBSERVER COMMAND
+                var mapper = new ObjectMapper();
+                var inputEntity = new Input();
+                inputEntity.name = result.getName();
+                inputEntity.level = 0;
+
+                var addInputCommand = new Command();
+                addInputCommand.command = "newInputEvent";
+                addInputCommand.data = mapper.writeValueAsString(inputEntity);
+                Webserver.instance.socket.notifyClients(addInputCommand);
             }
             result.lastTimeStamp = System.currentTimeMillis();
         }
         return result;
-    }
-
-    void notifyWebserverChange(){
-        var command = new Command();
-        command.setCommand("notify");
-        try {
-            Webserver.getInstance().getSocket().notifyClients(command);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     public Client getClientByName(String name){

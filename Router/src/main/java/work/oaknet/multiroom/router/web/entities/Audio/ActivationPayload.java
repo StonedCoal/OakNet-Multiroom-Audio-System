@@ -1,23 +1,9 @@
 package work.oaknet.multiroom.router.web.entities.Audio;
 
+import manifold.ext.props.rt.api.var;
+
 public class ActivationPayload {
 
-    private Input input;
-    private Output output;
-
-    public void setInput(Input input) {
-        this.input = input;
-    }
-
-    public Input getInput() {
-        return input;
-    }
-
-    public void setOutput(Output output) {
-        this.output = output;
-    }
-
-    public Output getOutput() {
-        return output;
-    }
+    @var Input input;
+    @var Output output;
 }

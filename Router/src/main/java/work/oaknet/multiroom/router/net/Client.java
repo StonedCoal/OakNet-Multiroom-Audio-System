@@ -1,18 +1,20 @@
 package work.oaknet.multiroom.router.net;
 
+import manifold.ext.props.rt.api.var;
+
 import java.net.InetAddress;
 import java.security.PublicKey;
 
 public class Client {
 
-    public String name;
-    public InetAddress address;
-    public int port;
-    public long frameCounter = 0;
-    public long lastTimeStamp;
+    @var String name;
+    @var InetAddress address;
+    @var int port;
+    @var public long frameCounter = 0;
+    @var long lastTimeStamp;
 
-    public int currentBufferSize;
-    public int desiredBufferSize;
-    public int currentVolume;
-    public int maxVolume;
+    @var int currentBufferSize;
+    @var int desiredBufferSize;
+    @var int currentVolume;
+    @var int maxVolume;
 }

@@ -1,6 +1,5 @@
 package work.oaknet.multiroom.router.web;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
@@ -8,15 +7,24 @@ import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import work.oaknet.multiroom.router.audio.AudioSourceManager;
+import work.oaknet.multiroom.router.net.Client;
 import work.oaknet.multiroom.router.net.ClientManager;
 import work.oaknet.multiroom.router.web.entities.Audio.ActivationPayload;
+import work.oaknet.multiroom.router.web.entities.Audio.Input;
+import work.oaknet.multiroom.router.web.entities.Audio.Output;
 import work.oaknet.multiroom.router.web.entities.Command;
 import work.oaknet.multiroom.router.web.entities.radio.PlayStationPayload;
+import work.oaknet.multiroom.router.web.entities.radio.RadioStation;
 
 import java.io.IOException;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+/**
+/* Note: The Websocket communicates with JSON payloads.
+/* The JSON payloads are wrapped in command Objects.
+/* Available commands can be seen in the Command.Factory class
+**/
 @WebSocket
 public class Websocket {
 
@@ -26,6 +34,53 @@ public class Websocket {
     @OnWebSocketConnect
     public void connected(Session session) {
         sessions.add(session);
+        // This sends all existing data to the new client
+        // Inputs
+        for (var input : AudioSourceManager.getInstance().sources) {
+            var inputEntity = new Input();
+            inputEntity.name = input.getName();
+            inputEntity.level = input.getCurrentAudioLevel();
+
+            var addInputCommand = Command.Factory.newInputCommand(inputEntity);
+            sendCommandToClient(addInputCommand, session);
+        }
+        // Outputs
+        for (var output : ClientManager.getInstance().getConnectedOutClients()) {
+            var outputEntity = new Output();
+            outputEntity.name = output.name;
+
+            var addOutputCommand = Command.Factory.newOutputCommand(outputEntity);
+            sendCommandToClient(addOutputCommand, session);
+        }
+        // Activations
+        for (var input : AudioSourceManager.getInstance().sources) {
+            var inputEntity = new Input();
+            inputEntity.name = input.name;
+            inputEntity.level = input.currentAudioLevel;
+            for (var activeClient : input.activeClients) {
+                var outputEntity = new Output();
+                outputEntity.name = activeClient.name;
+
+                var activationPayload = new ActivationPayload();
+                activationPayload.input = inputEntity;
+                activationPayload.output = outputEntity;
+
+                var activateCommand = Command.Factory.activationCommand(activationPayload);
+                sendCommandToClient(activateCommand, session);
+            }
+        }
+        // RadioStations
+        for(var stationName : RadioPlayer.instance.radioStations.keySet()){
+            var stationUrl = RadioPlayer.instance.radioStations.get(stationName);
+
+            var stationEntity = new RadioStation();
+            stationEntity.name = stationName;
+            stationEntity.url = stationUrl;
+
+            var command = Command.Factory.radioStationAddedCommand(stationEntity);
+
+            Webserver.instance.socket.sendCommandToClient(command, session);
+        }
     }
 
     @OnWebSocketClose
@@ -37,59 +92,29 @@ public class Websocket {
     public void message(Session session, String message) throws IOException {
         var mapper = new ObjectMapper();
         Command command = mapper.readValue(message, Command.class);
-        parseCommand(command);
+        Command.Parser.parseCommand(command);
     }
 
-    private void parseCommand(Command command){
-        var mapper = new ObjectMapper();
-        switch(command.getCommand()){
-            case "activate" ->{
-                try {
-                    ActivationPayload payload = mapper.readValue(command.getData(), ActivationPayload.class);
-                    var source = AudioSourceManager.getInstance().getSourceByName(payload.getInput().getName());
-                    var output = ClientManager.getInstance().getClientByName(payload.getOutput().getName());
-                    if(source == null || output == null)
-                        return;
-                    AudioSourceManager.getInstance().setActiveSourceForClient(source, output);
-                } catch (JsonProcessingException e) {
-                    e.printStackTrace();
-                }
-            }
-            case "deactivate" ->{
-                try {
-                    ActivationPayload payload = mapper.readValue(command.getData(), ActivationPayload.class);
-                    var output = ClientManager.getInstance().getClientByName(payload.getOutput().getName());
-                    if(output == null)
-                        return;
-                    AudioSourceManager.getInstance().setActiveSourceForClient(null, output);
-                } catch (JsonProcessingException e) {
-                    e.printStackTrace();
-                }
-            }
-            case "playStation" ->{
-                try {
-                    PlayStationPayload payload = mapper.readValue(command.getData(), PlayStationPayload.class);
-                    RadioPlayer.getInstance().play(payload.getUrl());
-                } catch (JsonProcessingException e) {
-                    e.printStackTrace();
-                }
-            }
-
+    public void sendStringToClient(String message, Session session){
+        if(session.isOpen()){
+            try{
+                session.getRemote().sendString(message);
+                session.getRemote().flush();
+            }catch(Exception ignored){ }
         }
     }
 
-    public void notifyClients(Command message) throws IOException {
+    public void sendCommandToClient(Command command, Session session){
+        var mapper = new ObjectMapper();
+        var json = mapper.writeValueAsString(command);
+        sendStringToClient(json, session);
+    }
+
+    public void notifyClients(Command message){
         var mapper = new ObjectMapper();
         var json = mapper.writeValueAsString(message);
-
         for(var session : sessions){
-            if(session.isOpen()){
-                try {
-                    session.getRemote().sendString(json);
-                    //session.getRemote().flush();
-                }
-                catch(IllegalStateException ignored){}
-            }
+           sendStringToClient(json, session);
         }
     }
 }

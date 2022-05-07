@@ -1,6 +1,5 @@
 package work.oaknet.multiroom.router.audio;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import work.oaknet.multiroom.router.audio.net.StreamAudioSource;
 import work.oaknet.multiroom.router.audio.radio.RadioAudioSource;
@@ -13,7 +12,6 @@ import work.oaknet.multiroom.router.web.entities.Audio.Input;
 import work.oaknet.multiroom.router.web.entities.Audio.Output;
 import work.oaknet.multiroom.router.web.entities.Command;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -32,10 +30,10 @@ public class AudioSourceManager {
 
     public AudioSourceManager(){
         instance = this;
+
         sources.add(spotifyAudioSource);
         sources.add(radioAudioSource);
-        //radioAudioSource.stream("https://liveradio.swr.de/sw282p3/dasding/play.mp3");
-        //radioAudioSource.stream("https://dispatcher.rndfnk.com/br/br3/live/mp3/mid");
+
         var audioInfoThread = new Thread(()->{
             while(!Thread.interrupted()){
                 var inputs = new ArrayList<Input>();
@@ -44,37 +42,27 @@ public class AudioSourceManager {
                     input.setName(source.getName());
                     input.setLevel(source.getCurrentAudioLevel());
                     var activeOutputs = new ArrayList<Output>();
-                    for(var activeOutput : source.activeClients){
-                        var output = new Output();
-                        output.setName(activeOutput.name);
-                        activeOutputs.add(output);
-                    }
-                    input.setActiveOutputs(activeOutputs);
+                    //for(var activeOutput : source.activeClients){
+                    //    var output = new Output();
+                    //    output.setName(activeOutput.name);
+                    //    activeOutputs.add(output);
+                    //}
+                    //input.setActiveOutputs(activeOutputs);
                     inputs.add(input);
                 }
+
+                // WEBSERVER COMMAND
                 var audioInfo = new AudioInfo();
                 audioInfo.setInputs(inputs);
                 var mapper = new ObjectMapper();
                 var command = new Command();
                 command.setCommand("info");
+                command.setData(mapper.writeValueAsString(audioInfo));
 
-                try {
-                    command.setData(mapper.writeValueAsString(audioInfo));
-                } catch (JsonProcessingException e) {
-                    e.printStackTrace();
-                }
+                Webserver.getInstance().getSocket().notifyClients(command);
 
-                try {
-                    Webserver.getInstance().getSocket().notifyClients(command);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                Thread.sleep(50);
 
-                try {
-                    Thread.sleep(50);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
             }
         });
         audioInfoThread.setDaemon(true);
@@ -92,6 +80,8 @@ public class AudioSourceManager {
                 source.activeClients.add(client);
             }
         }
+
+        // WEBSERVER COMMAND
         var payload = new ActivationPayload();
         var input=new Input();
         input.setName(source!=null?source.name:"NOTHINGTOSEEHERELOLXD_JUSTALONGSTRINGWITHMORETHAN32CHARACTERSTOPREVENTACCIDENTIALBLOCKING");
@@ -102,16 +92,9 @@ public class AudioSourceManager {
         var command = new Command();
         command.setCommand("activationEvent");
         var mapper = new ObjectMapper();
-        try {
-            command.setData(mapper.writeValueAsString(payload));
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-        try {
-            Webserver.getInstance().getSocket().notifyClients(command);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        command.setData(mapper.writeValueAsString(payload));
+
+        Webserver.getInstance().getSocket().notifyClients(command);
 
     }
 

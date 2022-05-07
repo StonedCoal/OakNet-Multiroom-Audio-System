@@ -1,5 +1,7 @@
 package work.oaknet.multiroom.router.web;
 
+import manifold.ext.props.rt.api.val;
+import manifold.ext.props.rt.api.var;
 import work.oaknet.multiroom.router.audio.AudioSource;
 import work.oaknet.multiroom.router.audio.AudioSourceManager;
 
@@ -12,22 +14,13 @@ import java.util.HashMap;
 
 public class RadioPlayer {
 
-    private static RadioPlayer instance;
-    private final HashMap<String, String> radioStations = new HashMap<>();
-
-
-    public static RadioPlayer getInstance() {
-        return instance;
-    }
+    @var static RadioPlayer instance;
+    @val HashMap<String, String> radioStations = new HashMap<>();
 
     public RadioPlayer() {
         instance = this;
         loadRadioStations();
         saveRadioStations();
-    }
-
-    public HashMap<String, String> getRadioStations() {
-        return radioStations;
     }
 
     public void loadRadioStations(){

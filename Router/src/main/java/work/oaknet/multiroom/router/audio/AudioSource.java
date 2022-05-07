@@ -81,8 +81,9 @@ public class AudioSource {
                     bytesToCopy = 32;
                 System.arraycopy(nameBytes, 0, data, magicPostBytesLength, bytesToCopy);
                 System.arraycopy(Utils.longToBytes(frameCount++), 0, data, magicPostBytesLength + 32, 8);
-                // check if Client is still connected
-                activeClients.removeIf((client) -> !ClientManager.getInstance().getConnectedOutClients().contains(client));
+
+                // check if Client is still connected (May not be needed anymore since ClientManager does this now)
+                //activeClients.removeIf((client) -> !ClientManager.getInstance().getConnectedOutClients().contains(client));
 
                 synchronized (activeClients){
                     for (var client : activeClients) {

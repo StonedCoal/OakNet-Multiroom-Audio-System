@@ -48,8 +48,8 @@ def sendHandshake():
                   ((32-len(clientName))*b"\0") +
                   struct.pack("!B", audioBackend.getVolume()) +
                   struct.pack("!B", audioBackend.maxVolume) +
-                  struct.pack("!H", audioBackend.getCurrentBufferSize()) +
-                  struct.pack("!H", audioBackend.bufferGoal), peer)
+                  struct.pack("!H", int(audioBackend.getCurrentBufferSize())) +
+                  struct.pack("!H", int(audioBackend.bufferGoal)), peer)
 
 
 def receiveOnce():
