@@ -46,8 +46,8 @@ def sendHandshake():
     peer = (config.getConfig()["network"]["broadcastAddress"], config.getConfig()["network"]["port"])
     socket.sendto(b"GIMMESTREAM"+ clientName.encode("ASCII") +
                   ((32-len(clientName))*b"\0") +
-                  struct.pack("!B", audioBackend.getVolume()) +
-                  struct.pack("!B", audioBackend.maxVolume) +
+                  struct.pack("!B", int(audioBackend.getVolume())) +
+                  struct.pack("!B", int(audioBackend.maxVolume)) +
                   struct.pack("!H", int(audioBackend.getCurrentBufferSize())) +
                   struct.pack("!H", int(audioBackend.bufferGoal)), peer)
 

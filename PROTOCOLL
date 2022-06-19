@@ -1,12 +1,10 @@
 Standard port 6980, Protocol UDP
 
-TODO Most of the protocol is currently little endian, however network stuff should be big endian
-
-#Little Endian
 Receiving Client -> Broadcast
 Periodically sending (ca. every Second):
 ["GIMMESTREAM"] + [32bytes name (unused shall be NUL)ASCII] + [byte currentVolume] + [2 byte (short) currentBufferSize] + [2 byte (short) desiredBufferSize]
 
+// TODO This makes no sense LOL
 Router -> Broadcast
 Periodically sending (ca. every Second):
 ["IMTHEROUTER"]

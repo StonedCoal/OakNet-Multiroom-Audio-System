@@ -143,7 +143,7 @@ def setOutputDevice(outDeviceId):
                     continue
                 
             else:
-                lastTimestamp=lastTimestamp+1
+                lastTimestamp=lastTimestamp-1
             if(len(buffer) < bufferGoal - bufferRange):
                 print("Underrun")
                 if(isBuffering>0):

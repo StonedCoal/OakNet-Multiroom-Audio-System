@@ -116,7 +116,17 @@ public class ClientManager {
             result.maxVolume = maxVolume;
             result.currentBufferSize = currentBufferSize;
             result.desiredBufferSize = bufferGoal;
-            System.out.println("Updated Client: " + result.name +", Volume: "+ currentVolume + "/" + maxVolume + ", Buffer: " + currentBufferSize + "/" + bufferGoal);
+
+            var outputEntity = new Output();
+            outputEntity.name = result.name;
+            outputEntity.volume = result.currentVolume;
+            outputEntity.maxVolume = result.maxVolume;
+            outputEntity.currentBufferSize = result.currentBufferSize;
+            outputEntity.bufferGoal = result.desiredBufferSize;
+
+            var command = Command.Factory.outputUpdateCommand(outputEntity);
+            Webserver.instance.socket.notifyClients(command);
+            //System.out.println("Updated Client: " + result.name +", Volume: "+ currentVolume + "/" + maxVolume + ", Buffer: " + currentBufferSize + "/" + bufferGoal);
         }
         return result;
     }

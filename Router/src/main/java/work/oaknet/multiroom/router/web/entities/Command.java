@@ -46,6 +46,13 @@ public class Command {
             result.data = mapper.writeValueAsString(payload);
             return result;
         }
+
+        public static Command outputUpdateCommand(Output payload){
+            var result = new Command();
+            result.command = "updateClientEvent";
+            result.data = mapper.writeValueAsString(payload);
+            return result;
+        }
     }
     public class Parser{
         public static void parseCommand(Command command){

@@ -31,7 +31,7 @@ let outputTemplateFunc = (input, output) => `
         <h6 class="card-subtitle mb-2 text-muted">${output}</h6>
         <span id="badge-${input}-${output}" class="badge bg-primary" style="visibility: hidden">Active</span>
         <br><br>
-        <button id="toggle-${input}-${output}" href="#"
+        <button id="toggle-${input}-${output}"
             class="btn btn-primary"
             onclick="activate(this.id, '${input}', '${output}')">Activate</button>
     </div>
@@ -43,12 +43,14 @@ let connectedClientTemplate = (output) =>`
         <div class="fw-bold ms-2 me-auto">
         ${output}
         </div>
-        <div id="${output}-currentlyPlaying">Currently Playing: Nothing</div>
+        <div class="mx-auto" id="${output}-currentlyPlaying">Currently Playing: Nothing</div>
+        <div id="infolabel-${output}">Buffer: N/A|N/A, Volume: N/A</div>
     </div>
     <div class="d-flex justify-content-between align-items-start">
-        <label for="volume-${output}" class="form-label ms-2" id="${output}-volume-label">Volume</label>
+        <label for="volume-${output}" class="form-label ms-2" id="${output}-volume-label">Change Volume: </label>
         <input type="range" class="form-range ms-2" oninput="volumeChanged(this, '${output}')" id="${output}-volume-slider">
     </div>
+    
 </li>
 `
 let radioStationTemplate = (stationName, stationUrl) =>`
@@ -139,6 +141,10 @@ function onNewRadioStationEvent(payload) {
     $("#radio-list").append(radioStationTemplate(payload.name, payload.url));
 }
 
+function onUpdateClientEvent(payload) {
+    $("#infolabel-"+payload.name).html("Buffer: " + payload.currentBufferSize + "|" + payload.bufferGoal + ", Volume: " + payload.volume);
+}
+
 let socket = new WebSocket("ws://" + location.host + "/ws");
 
 function checkSocket() {
@@ -181,6 +187,9 @@ socket.onmessage = function (event) {
             break;
         case "newRadioStationEvent":
             onNewRadioStationEvent(JSON.parse(payload.data));
+            break;
+        case "updateClientEvent":
+            onUpdateClientEvent(JSON.parse(payload.data));
             break;
     }
 }
@@ -232,4 +241,5 @@ function activate(id, input, output) {
 
 function volumeChanged(element, output) {
     let value = element.value;
+    console.log(value);
 }
