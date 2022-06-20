@@ -19,74 +19,64 @@ public class SpotifyAudioSource extends AudioSource {
 
     public SpotifyAudioSource() {
         super("Spotify");
-        try{
-            var playerConfig = new PlayerConfiguration.Builder()
-                    .setOutput(PlayerConfiguration.AudioOutput.CUSTOM)
-                    .setOutputClass("work.oaknet.multiroom.router.audio.spotify.SpotifyAudioSink")
-                    .setAutoplayEnabled(true)
-                    .setPreferredQuality(AudioQuality.VERY_HIGH)
-                    .build();
+        var playerConfig = new PlayerConfiguration.Builder()
+                .setOutput(PlayerConfiguration.AudioOutput.CUSTOM)
+                .setOutputClass("work.oaknet.multiroom.router.audio.spotify.SpotifyAudioSink")
+                .setAutoplayEnabled(true)
+                .setPreferredQuality(AudioQuality.VERY_HIGH)
+                .build();
 
-            ShellEvents shellEvents;
-            ShellEvents.Configuration eventsShellConf = new ShellEvents.Configuration.Builder()
-                    .setEnabled(false)
-                    .build();
-            if (eventsShellConf.enabled) shellEvents = new ShellEvents(eventsShellConf);
-            else shellEvents = null;
+        ShellEvents shellEvents;
+        ShellEvents.Configuration eventsShellConf = new ShellEvents.Configuration.Builder()
+                .setEnabled(false)
+                .build();
+        if (eventsShellConf.enabled) shellEvents = new ShellEvents(eventsShellConf);
+        else shellEvents = null;
 
-            var server = new ZeroconfServer.Builder()
-                    .setDeviceId("edcf2d00-923f-11ec-b909-0242ac120002ke83")
-                    .setDeviceName(Constants.SPOTIFY_CONNECT_DEVICE_NAME)
-                    .setDeviceType(Connect.DeviceType.SPEAKER)
-                    .create();
+        var server = new ZeroconfServer.Builder()
+                .setDeviceId("edcf2d00-923f-11ec-b909-0242ac120002ke83")
+                .setDeviceName(Constants.SPOTIFY_CONNECT_DEVICE_NAME)
+                .setDeviceType(Connect.DeviceType.SPEAKER)
+                .create();
 
-            server.addSessionListener(new ZeroconfServer.SessionListener() {
+        server.addSessionListener(new ZeroconfServer.SessionListener() {
 
-                Player lastPlayer = null;
+            Player lastPlayer = null;
 
-                {
-                    Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-                        if (lastPlayer != null) lastPlayer.close();
-                    }));
-                }
-
-                @Override
-                public void sessionClosing(@NotNull Session session) {
+            {
+                Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                     if (lastPlayer != null) lastPlayer.close();
-                }
+                }));
+            }
 
-                @Override
-                public void sessionChanged(@NotNull Session session) {
-                    lastPlayer = new Player(playerConfig, session);
-                    if (shellEvents != null) {
-                        session.addReconnectionListener(shellEvents);
-                        lastPlayer.addEventsListener(shellEvents);
-                    }
-                }
-            });
+            @Override
+            public void sessionClosing(@NotNull Session session) {
 
-            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-                try {
-                    server.closeSession();
-                    server.close();
-                } catch (IOException ignored) {
-                }
-            }));
-        }catch (IOException ioE){
+            }
 
-        }
+            @Override
+            public void sessionChanged(@NotNull Session session) {
+                // You cant close not authentificated sessions? That sounds like a severe bug and memoryleak
+                //if (lastPlayer != null) lastPlayer.close()
+                lastPlayer = new Player(playerConfig, session);
 
+            }
+        });
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            server.closeSession();
+            server.close();
+        }));
     }
 
     @Override
     public void addAudioData(byte[] frame) {
         super.addAudioData(frame);
-        while(buf.size() > Constants.PACKET_SIZE * 4 ){
-            try {
-                Thread.sleep(2);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+        while(buf.size() > Constants.PACKET_SIZE * 2 ){
+            if(buf.size() > Constants.PACKET_SIZE * 8){
+                buf.clear();
             }
+            Thread.sleep(1);
         }
     }
 }
