@@ -110,6 +110,9 @@ public class ClientManager {
                 addOutputCommand.data = mapper.writeValueAsString(outputEntity);
                 Webserver.instance.socket.notifyClients(addOutputCommand);
 
+                //Notify AudioSource Manager
+                AudioSourceManager.getInstance().notifyNewClientConnected(result);
+
             }
             result.lastTimeStamp = System.currentTimeMillis();
             result.currentVolume = currentVolume;

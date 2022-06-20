@@ -27,6 +27,7 @@ public class AudioSourceManager {
     public SpotifyAudioSource spotifyAudioSource = new SpotifyAudioSource();
     public RadioAudioSource radioAudioSource = new RadioAudioSource();
     public ArrayList<AudioSource> sources = new ArrayList<>();
+    private HashMap<String, AudioSource> lastActiveSource = new HashMap<>();
 
     public AudioSourceManager(){
         instance = this;
@@ -64,9 +65,19 @@ public class AudioSourceManager {
                 Thread.sleep(50);
 
             }
-        });
+        }, "AudiSource-Info-Thread");
         audioInfoThread.setDaemon(true);
         audioInfoThread.start();
+    }
+
+    public void notifyNewClientConnected(Client client){
+        var result = lastActiveSource.keySet().stream().filter((name)-> client.name.equals(name)).findFirst();
+        if(result.isPresent()){
+            var audioSource = lastActiveSource.get(result.get());
+            if(sources.contains(audioSource))
+                setActiveSourceForClient(audioSource, client);
+
+        }
     }
 
     public void setActiveSourceForClient(AudioSource source, Client client){
@@ -95,6 +106,8 @@ public class AudioSourceManager {
         command.setData(mapper.writeValueAsString(payload));
 
         Webserver.getInstance().getSocket().notifyClients(command);
+
+        lastActiveSource.put(client.name, source);
 
     }
 
