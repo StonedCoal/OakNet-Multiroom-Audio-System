@@ -4,6 +4,16 @@
   transition: none !important;
 }
 
+body{
+  background-color: #323438;
+  color: #eaedfa;
+}
+
+.accordion-button{
+  color: #eaedfa;
+  background-color: #323438;
+}
+
 /*
  * Sidebar
  */
@@ -37,9 +47,14 @@
   overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
 }
 
+.text-light{
+  color: #eaedfa;
+  --bs-text-opacity: 1;
+}
+
 .sidebar .nav-link {
   font-weight: 500;
-  color: #333;
+  color: #eaedfa;
 }
 
 .sidebar .nav-link .feather {

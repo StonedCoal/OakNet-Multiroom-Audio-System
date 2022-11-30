@@ -12,8 +12,7 @@ import java.io.IOException;
 public class SpotifyAudioSink implements SinkOutput {
     @Override
     public boolean start(@NotNull OutputAudioFormat format) throws SinkException {
-
-        return SinkOutput.super.start(format);
+        return true;
     }
 
     @Override
@@ -31,22 +30,20 @@ public class SpotifyAudioSink implements SinkOutput {
 
     @Override
     public void release() {
-        SinkOutput.super.release();
     }
 
     @Override
     public void drain() {
-        SinkOutput.super.drain();
     }
 
     @Override
     public void flush() {
-        SinkOutput.super.flush();
+
     }
 
     @Override
     public void stop() {
-        SinkOutput.super.stop();
+
     }
 
     @Override

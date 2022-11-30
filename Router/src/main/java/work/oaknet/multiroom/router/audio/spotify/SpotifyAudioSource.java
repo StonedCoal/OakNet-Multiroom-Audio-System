@@ -42,7 +42,6 @@ public class SpotifyAudioSource extends AudioSource {
         server.addSessionListener(new ZeroconfServer.SessionListener() {
 
             Player lastPlayer = null;
-
             {
                 Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                     if (lastPlayer != null) lastPlayer.close();
@@ -51,13 +50,11 @@ public class SpotifyAudioSource extends AudioSource {
 
             @Override
             public void sessionClosing(@NotNull Session session) {
-
+                if (lastPlayer != null) lastPlayer.close();
             }
 
             @Override
             public void sessionChanged(@NotNull Session session) {
-                // You cant close not authentificated sessions? That sounds like a severe bug and memoryleak
-                //if (lastPlayer != null) lastPlayer.close()
                 lastPlayer = new Player(playerConfig, session);
 
             }
