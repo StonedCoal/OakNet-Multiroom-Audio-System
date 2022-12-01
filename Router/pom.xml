@@ -42,7 +42,7 @@
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
-        <manifold.version>2022.1.21</manifold.version>
+        <manifold.version>2022.1.26</manifold.version>
     </properties>
 
    <dependencies><dependency>
@@ -139,6 +139,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.6</version>
                 <configuration>
                     <archive>
                         <manifest>

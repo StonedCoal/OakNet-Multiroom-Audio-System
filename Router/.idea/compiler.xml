@@ -12,16 +12,16 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
-          <entry name="$MAVEN_REPOSITORY$/systems/manifold/manifold-preprocessor/2022.1.21/manifold-preprocessor-2022.1.21.jar" />
-          <entry name="$MAVEN_REPOSITORY$/systems/manifold/manifold/2022.1.21/manifold-2022.1.21.jar" />
-          <entry name="$MAVEN_REPOSITORY$/systems/manifold/manifold-rt/2022.1.21/manifold-rt-2022.1.21.jar" />
-          <entry name="$MAVEN_REPOSITORY$/systems/manifold/manifold-util/2022.1.21/manifold-util-2022.1.21.jar" />
-          <entry name="$MAVEN_REPOSITORY$/systems/manifold/manifold-exceptions/2022.1.21/manifold-exceptions-2022.1.21.jar" />
-          <entry name="$MAVEN_REPOSITORY$/systems/manifold/manifold-ext/2022.1.21/manifold-ext-2022.1.21.jar" />
-          <entry name="$MAVEN_REPOSITORY$/systems/manifold/manifold-ext-rt/2022.1.21/manifold-ext-rt-2022.1.21.jar" />
-          <entry name="$MAVEN_REPOSITORY$/systems/manifold/manifold-strings/2022.1.21/manifold-strings-2022.1.21.jar" />
-          <entry name="$MAVEN_REPOSITORY$/systems/manifold/manifold-props/2022.1.21/manifold-props-2022.1.21.jar" />
-          <entry name="$MAVEN_REPOSITORY$/systems/manifold/manifold-props-rt/2022.1.21/manifold-props-rt-2022.1.21.jar" />
+          <entry name="$MAVEN_REPOSITORY$/systems/manifold/manifold-preprocessor/2022.1.26/manifold-preprocessor-2022.1.26.jar" />
+          <entry name="$MAVEN_REPOSITORY$/systems/manifold/manifold/2022.1.26/manifold-2022.1.26.jar" />
+          <entry name="$MAVEN_REPOSITORY$/systems/manifold/manifold-rt/2022.1.26/manifold-rt-2022.1.26.jar" />
+          <entry name="$MAVEN_REPOSITORY$/systems/manifold/manifold-util/2022.1.26/manifold-util-2022.1.26.jar" />
+          <entry name="$MAVEN_REPOSITORY$/systems/manifold/manifold-exceptions/2022.1.26/manifold-exceptions-2022.1.26.jar" />
+          <entry name="$MAVEN_REPOSITORY$/systems/manifold/manifold-ext/2022.1.26/manifold-ext-2022.1.26.jar" />
+          <entry name="$MAVEN_REPOSITORY$/systems/manifold/manifold-ext-rt/2022.1.26/manifold-ext-rt-2022.1.26.jar" />
+          <entry name="$MAVEN_REPOSITORY$/systems/manifold/manifold-strings/2022.1.26/manifold-strings-2022.1.26.jar" />
+          <entry name="$MAVEN_REPOSITORY$/systems/manifold/manifold-props/2022.1.26/manifold-props-2022.1.26.jar" />
+          <entry name="$MAVEN_REPOSITORY$/systems/manifold/manifold-props-rt/2022.1.26/manifold-props-rt-2022.1.26.jar" />
         </processorPath>
         <module name="Router" />
       </profile>

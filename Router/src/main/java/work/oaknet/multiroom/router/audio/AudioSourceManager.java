@@ -2,8 +2,8 @@ package work.oaknet.multiroom.router.audio;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import work.oaknet.multiroom.router.audio.net.StreamAudioSource;
+import work.oaknet.multiroom.router.audio.pipe.PipeAudioSource;
 import work.oaknet.multiroom.router.audio.radio.RadioAudioSource;
-import work.oaknet.multiroom.router.audio.spotify.SpotifyAudioSource;
 import work.oaknet.multiroom.router.net.Client;
 import work.oaknet.multiroom.router.web.Webserver;
 import work.oaknet.multiroom.router.web.entities.Audio.ActivationPayload;
@@ -24,7 +24,6 @@ public class AudioSourceManager {
     }
 
     private HashMap<Client, StreamAudioSource> streamAudioSources = new HashMap<Client, StreamAudioSource>();
-    public SpotifyAudioSource spotifyAudioSource = new SpotifyAudioSource();
     public RadioAudioSource radioAudioSource = new RadioAudioSource();
     public ArrayList<AudioSource> sources = new ArrayList<>();
     private HashMap<String, AudioSource> lastActiveSource = new HashMap<>();
@@ -32,7 +31,7 @@ public class AudioSourceManager {
     public AudioSourceManager(){
         instance = this;
 
-        sources.add(spotifyAudioSource);
+        sources.add(new PipeAudioSource("Spotify", "librespot -n \"OakNet Audio\" -b 320 -B pipe"));
         sources.add(radioAudioSource);
 
         var audioInfoThread = new Thread(()->{
@@ -42,13 +41,6 @@ public class AudioSourceManager {
                     var input = new Input();
                     input.setName(source.getName());
                     input.setLevel(source.getCurrentAudioLevel());
-                    var activeOutputs = new ArrayList<Output>();
-                    //for(var activeOutput : source.activeClients){
-                    //    var output = new Output();
-                    //    output.setName(activeOutput.name);
-                    //    activeOutputs.add(output);
-                    //}
-                    //input.setActiveOutputs(activeOutputs);
                     inputs.add(input);
                 }
 
