@@ -13,6 +13,26 @@ body{
   color: #eaedfa;
   background-color: #323438;
 }
+.accordion-body{
+  color: #eaedfa;
+  background-color: #323438;
+}
+
+.card{
+  border: 1px solid #eaedfa;
+  border-radius: .25rem;
+  color: #eaedfa;
+  background-color: #323438;
+}
+
+.accordion-button::after{
+  filter: invert(98%) sepia(1%) saturate(3568%) hue-rotate(184deg) brightness(97%) contrast(97%);
+}
+
+.accordion-button:not(.collapsed) {
+  background-color: #323438;
+  box-shadow: inset 0 -1px 0 #eaedf4;
+}
 
 /*
  * Sidebar
